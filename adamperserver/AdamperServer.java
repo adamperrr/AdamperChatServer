@@ -7,6 +7,8 @@ import java.net.*;
 import javax.swing.text.*;
 import java.awt.*;
 
+import msg.*;
+
 /**
  *
  * @author adamp
@@ -261,7 +263,6 @@ public class AdamperServer extends javax.swing.JFrame {
     appendMsg("\n Online users :");
     for (String current_user : _usersList) {
       appendMsg(current_user);
-      appendMsg("\n");
     }
   }//GEN-LAST:event_displayAllUsersBtnActionPerformed
 
