@@ -16,7 +16,7 @@ public class ClientHandler implements Runnable {
       InputStreamReader isReader = new InputStreamReader(sock.getInputStream());
       reader = new BufferedReader(isReader);
     } catch (Exception ex) {
-      mainFrame.appendToScreen("Unexpected error...");
+      mainFrame.appendMsg("Unexpected error...");
     }
 
   }
@@ -28,12 +28,8 @@ public class ClientHandler implements Runnable {
 
     try {
       while ((message = reader.readLine()) != null) {
-        mainFrame.appendToScreen("Received: " + message);
+        mainFrame.appendMsg("Received: " + message);
         data = message.split(":");
-
-        for (String token : data) {
-          mainFrame.appendToScreen(token);
-        }
 
         if (data[2].equals(connect)) {
           mainFrame.sendToAllUsers((data[0] + ":" + data[1] + ":" + chat));
@@ -44,11 +40,11 @@ public class ClientHandler implements Runnable {
         } else if (data[2].equals(chat)) {
           mainFrame.sendToAllUsers(message);
         } else {
-          mainFrame.appendToScreen("No Conditions were met.");
+          mainFrame.appendMsg("No Conditions were met.");
         }
       }
     } catch (Exception ex) {
-      mainFrame.appendToScreen("Lost a connection.");
+      mainFrame.appendMsg("Lost a connection.");
       ex.printStackTrace();
       mainFrame.removeUserFromOutputStreams(client);
     }

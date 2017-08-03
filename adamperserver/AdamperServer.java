@@ -4,6 +4,9 @@ import java.util.*;
 import java.io.*;
 import java.net.*;
 
+import javax.swing.text.*;
+import java.awt.*;
+
 /**
  *
  * @author adamp
@@ -52,38 +55,42 @@ public class AdamperServer extends javax.swing.JFrame {
     initComponents();
   }
 
-  public void appendToScreen(String message) {
-    mainTextArea.append(message + "\n");
+  public void appendMsg(String message) {
+    StyledDocument doc = mainTextArea.getStyledDocument();
+    message = message.trim() + "\n";
+    try {
+      doc.insertString(doc.getLength(), message, null);
+    } catch (Exception e) {
+      System.out.println(e);
+    }
   }
 
   public void sendToAllUsers(String message) {
-    Iterator it = outputStreams.iterator();
+    Iterator it = _outputStreams.iterator();
 
     while (it.hasNext()) {
       try {
         PrintWriter writer = (PrintWriter) it.next();
         writer.println(message);
-        mainTextArea.append("Sending: " + message + "\n");
+        appendMsg("Sending: " + message);
         writer.flush();
         mainTextArea.setCaretPosition(mainTextArea.getDocument().getLength());
 
       } catch (Exception ex) {
-        mainTextArea.append("Error telling everyone. \n");
+        appendMsg("Error telling everyone.");
       }
     }
   }
 
   public void initialiseUsersList() {
-    usersList = new ArrayList();
+    _usersList = new ArrayList();
   }
 
   public void addUser(String data) {
     String message, add = ": :Connect", done = "Server: :Done", name = data;
-    mainTextArea.append("Before " + name + " added. \n");
-    usersList.add(name);
-    mainTextArea.append("After " + name + " added. \n");
-    String[] tempList = new String[(usersList.size())];
-    usersList.toArray(tempList);
+    _usersList.add(name);
+    String[] tempList = new String[(_usersList.size())];
+    _usersList.toArray(tempList);
 
     for (String token : tempList) {
       message = (token + add);
@@ -94,9 +101,9 @@ public class AdamperServer extends javax.swing.JFrame {
 
   public void removeUser(String data) {
     String message, add = ": :Connect", done = "Server: :Done", name = data;
-    usersList.remove(name);
-    String[] tempList = new String[(usersList.size())];
-    usersList.toArray(tempList);
+    _usersList.remove(name);
+    String[] tempList = new String[(_usersList.size())];
+    _usersList.toArray(tempList);
 
     for (String token : tempList) {
       message = (token + add);
@@ -106,15 +113,15 @@ public class AdamperServer extends javax.swing.JFrame {
   }
 
   public void initialiseOutputStreams() {
-    outputStreams = new ArrayList();
+    _outputStreams = new ArrayList();
   }
 
   public void addUserToOutputStreams(PrintWriter user) {
-    outputStreams.add(user);
+    _outputStreams.add(user);
   }
 
   public void removeUserFromOutputStreams(PrintWriter user) {
-    outputStreams.remove(user);
+    _outputStreams.remove(user);
   }
 
   /**
@@ -126,15 +133,19 @@ public class AdamperServer extends javax.swing.JFrame {
   // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
   private void initComponents() {
 
+    jScrollPane2 = new javax.swing.JScrollPane();
+    jEditorPane1 = new javax.swing.JEditorPane();
     startServerBtn = new javax.swing.JButton();
     stopServerBtn = new javax.swing.JButton();
-    jScrollPane1 = new javax.swing.JScrollPane();
-    mainTextArea = new javax.swing.JTextArea();
     clearScreenBtn = new javax.swing.JButton();
     displayAllUsersBtn = new javax.swing.JButton();
     messageToAllTextField = new javax.swing.JTextField();
     sendToAllBtn = new javax.swing.JButton();
     messageToAllLabel = new javax.swing.JLabel();
+    jScrollPane1 = new javax.swing.JScrollPane();
+    mainTextArea = new javax.swing.JTextPane();
+
+    jScrollPane2.setViewportView(jEditorPane1);
 
     setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
     setTitle("Server - Adamper");
@@ -155,11 +166,6 @@ public class AdamperServer extends javax.swing.JFrame {
       }
     });
 
-    mainTextArea.setEditable(false);
-    mainTextArea.setColumns(20);
-    mainTextArea.setRows(5);
-    jScrollPane1.setViewportView(mainTextArea);
-
     clearScreenBtn.setText("Wyczyść ekran");
     clearScreenBtn.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -175,8 +181,15 @@ public class AdamperServer extends javax.swing.JFrame {
     });
 
     sendToAllBtn.setText("Wyślij");
+    sendToAllBtn.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(java.awt.event.ActionEvent evt) {
+        sendToAllBtnActionPerformed(evt);
+      }
+    });
 
     messageToAllLabel.setText("Wyślij wiadomość do wszystkich użytkowników");
+
+    jScrollPane1.setViewportView(mainTextArea);
 
     javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
     getContentPane().setLayout(layout);
@@ -185,11 +198,11 @@ public class AdamperServer extends javax.swing.JFrame {
       .addGroup(layout.createSequentialGroup()
         .addContainerGap()
         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+          .addComponent(jScrollPane1)
           .addGroup(layout.createSequentialGroup()
             .addComponent(messageToAllTextField)
             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
             .addComponent(sendToAllBtn))
-          .addComponent(jScrollPane1)
           .addGroup(layout.createSequentialGroup()
             .addComponent(startServerBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 235, javax.swing.GroupLayout.PREFERRED_SIZE)
             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -208,13 +221,13 @@ public class AdamperServer extends javax.swing.JFrame {
         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
           .addComponent(startServerBtn)
           .addComponent(stopServerBtn))
-        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 186, Short.MAX_VALUE)
-        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+        .addGap(10, 10, 10)
+        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 197, Short.MAX_VALUE)
+        .addGap(10, 10, 10)
         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
           .addComponent(displayAllUsersBtn)
           .addComponent(clearScreenBtn))
-        .addGap(24, 24, 24)
+        .addGap(10, 10, 10)
         .addComponent(messageToAllLabel)
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
@@ -235,7 +248,7 @@ public class AdamperServer extends javax.swing.JFrame {
     }
 
     sendToAllUsers("Server:is stopping and all users will be disconnected.\n:Chat");
-    mainTextArea.append("Server stopping... \n");
+    appendMsg("Server stopping...");
 
     mainTextArea.setText("");
   }//GEN-LAST:event_stopServerBtnActionPerformed
@@ -245,10 +258,10 @@ public class AdamperServer extends javax.swing.JFrame {
   }//GEN-LAST:event_clearScreenBtnActionPerformed
 
   private void displayAllUsersBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_displayAllUsersBtnActionPerformed
-    mainTextArea.append("\n Online users : \n");
-    for (String current_user : usersList) {
-      mainTextArea.append(current_user);
-      mainTextArea.append("\n");
+    appendMsg("\n Online users :");
+    for (String current_user : _usersList) {
+      appendMsg(current_user);
+      appendMsg("\n");
     }
   }//GEN-LAST:event_displayAllUsersBtnActionPerformed
 
@@ -257,17 +270,34 @@ public class AdamperServer extends javax.swing.JFrame {
     Thread starter = new Thread(tempServerStart);
     starter.start();
 
-    mainTextArea.append("Server started...\n");
+    appendMsg("Server started...");
   }//GEN-LAST:event_startServerBtnActionPerformed
 
-  private ArrayList<PrintWriter> outputStreams;
-  private ArrayList<String> usersList;
+  private void sendToAllBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendToAllBtnActionPerformed
+    String nothing = "";
+    if ((messageToAllTextField.getText()).equals(nothing)) {
+      messageToAllTextField.setText("");
+      messageToAllTextField.requestFocus();
+    } else {
+      sendToAllUsers("SERVER ADMIN:" + messageToAllTextField.getText() + ":" + "Chat");
+      messageToAllTextField.setText("");
+      messageToAllTextField.requestFocus();
+    }
+
+    messageToAllTextField.setText("");
+    messageToAllTextField.requestFocus();
+  }//GEN-LAST:event_sendToAllBtnActionPerformed
+
+  private ArrayList<PrintWriter> _outputStreams;
+  private ArrayList<String> _usersList;
 
   // Variables declaration - do not modify//GEN-BEGIN:variables
   private javax.swing.JButton clearScreenBtn;
   private javax.swing.JButton displayAllUsersBtn;
+  private javax.swing.JEditorPane jEditorPane1;
   private javax.swing.JScrollPane jScrollPane1;
-  private javax.swing.JTextArea mainTextArea;
+  private javax.swing.JScrollPane jScrollPane2;
+  private javax.swing.JTextPane mainTextArea;
   private javax.swing.JLabel messageToAllLabel;
   private javax.swing.JTextField messageToAllTextField;
   private javax.swing.JButton sendToAllBtn;
