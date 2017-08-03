@@ -57,29 +57,29 @@ public class AdamperServer extends javax.swing.JFrame {
     initComponents();
   }
 
-  public void appendMsg(String message) {
+  public void appendMsg(String inText) {
     StyledDocument doc = mainTextArea.getStyledDocument();
-    message = message.trim() + "\n";
+    inText = inText.trim() + "\n";
     try {
-      doc.insertString(doc.getLength(), message, null);
+      doc.insertString(doc.getLength(), inText, null);
     } catch (Exception e) {
       System.out.println(e);
     }
   }
 
-  public void sendToAllUsers(String message) {
+  public void sendToAllUsers(String inText) {
     Iterator it = _outputStreams.iterator();
 
     while (it.hasNext()) {
       try {
         PrintWriter writer = (PrintWriter) it.next();
-        writer.println(message);
-        appendMsg("Sending: " + message);
+        writer.println(inText);
+        appendMsg("Wysłano: " + inText);
         writer.flush();
         mainTextArea.setCaretPosition(mainTextArea.getDocument().getLength());
 
       } catch (Exception ex) {
-        appendMsg("Error telling everyone.");
+        appendMsg("Błąd wiadomości do wszystkich... ");
       }
     }
   }
@@ -88,30 +88,32 @@ public class AdamperServer extends javax.swing.JFrame {
     _usersList = new ArrayList();
   }
 
-  public void addUser(String data) {
-    String message, add = ": :Connect", done = "Server: :Done", name = data;
+  public void addUser(String name) {
     _usersList.add(name);
-    String[] tempList = new String[(_usersList.size())];
-    _usersList.toArray(tempList);
 
-    for (String token : tempList) {
-      message = (token + add);
-      sendToAllUsers(message);
+    for(String tempName : _usersList) {
+      Message tempMessage = new Message(MsgType.Connect, tempName, "połączył się.");
+      sendToAllUsers(tempMessage.getMessage());
     }
-    sendToAllUsers(done);
+    Message tempMessage = new Message(MsgType.Done, "Serwer", "połączył się.");
+    sendToAllUsers(tempMessage.getMessage());
   }
 
-  public void removeUser(String data) {
-    String message, add = ": :Connect", done = "Server: :Done", name = data;
-    _usersList.remove(name);
-    String[] tempList = new String[(_usersList.size())];
-    _usersList.toArray(tempList);
+  public void removeUser(String inName) {
+    //
+    //    _usersList.remove(name);
+    //    String[] tempList = new String[(_usersList.size())];
+    //    _usersList.toArray(tempList);
+    //
+    //
+    _usersList.remove(inName);
 
-    for (String token : tempList) {
-      message = (token + add);
-      sendToAllUsers(message);
+    for(String tempName : _usersList) {
+      Message message = new Message(MsgType.Connect, tempName,"połączył się.");
+      sendToAllUsers(message.getMessage());
     }
-    sendToAllUsers(done);
+    Message tempMessage = new Message(MsgType.Done, "Serwer", "połączył się.");
+    sendToAllUsers(tempMessage.getMessage());
   }
 
   public void initialiseOutputStreams() {
@@ -248,9 +250,9 @@ public class AdamperServer extends javax.swing.JFrame {
     } catch (InterruptedException ex) {
       Thread.currentThread().interrupt();
     }
-
-    sendToAllUsers("Server:is stopping and all users will be disconnected.\n:Chat");
-    appendMsg("Server stopping...");
+    Message tempMessage = new Message(MsgType.Chat, "Serwer", "jest zatrzymany - wszyscy użytkownicy zostaną wylogowani.\n");
+    sendToAllUsers(tempMessage.getMessage());
+    appendMsg("Serwer zatrzymany...");
 
     mainTextArea.setText("");
   }//GEN-LAST:event_stopServerBtnActionPerformed
@@ -260,9 +262,9 @@ public class AdamperServer extends javax.swing.JFrame {
   }//GEN-LAST:event_clearScreenBtnActionPerformed
 
   private void displayAllUsersBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_displayAllUsersBtnActionPerformed
-    appendMsg("\n Online users :");
-    for (String current_user : _usersList) {
-      appendMsg(current_user);
+    appendMsg("\n Użytkownicy online :");
+    for (String currentUser : _usersList) {
+      appendMsg("\t" + currentUser);
     }
   }//GEN-LAST:event_displayAllUsersBtnActionPerformed
 
@@ -271,7 +273,7 @@ public class AdamperServer extends javax.swing.JFrame {
     Thread starter = new Thread(tempServerStart);
     starter.start();
 
-    appendMsg("Server started...");
+    appendMsg("Serwer włączony...");
   }//GEN-LAST:event_startServerBtnActionPerformed
 
   private void sendToAllBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendToAllBtnActionPerformed
@@ -280,7 +282,8 @@ public class AdamperServer extends javax.swing.JFrame {
       messageToAllTextField.setText("");
       messageToAllTextField.requestFocus();
     } else {
-      sendToAllUsers("SERVER ADMIN:" + messageToAllTextField.getText() + ":" + "Chat");
+      Message tempMessage = new Message(MsgType.Chat, "ADMINISTRATOR", messageToAllTextField.getText());
+      sendToAllUsers(tempMessage.getMessage());
       messageToAllTextField.setText("");
       messageToAllTextField.requestFocus();
     }
