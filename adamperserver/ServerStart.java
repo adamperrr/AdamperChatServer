@@ -25,10 +25,10 @@ public class ServerStart implements Runnable {
 
         Thread listener = new Thread(new ClientHandler(clientSock, writer, mainFrame));
         listener.start();
-        mainFrame.appendToScreen("Got a connection. \n");
+        mainFrame.appendToScreen("Got a connection.");
       }
     } catch (Exception ex) {
-      mainFrame.appendToScreen("Error making a connection. \n");
+      mainFrame.appendToScreen("Error making a connection.");
     }
   }
 

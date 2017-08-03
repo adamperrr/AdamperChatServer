@@ -53,7 +53,7 @@ public class AdamperServer extends javax.swing.JFrame {
   }
 
   public void appendToScreen(String message) {
-    mainTextArea.append(message);
+    mainTextArea.append(message + "\n");
   }
 
   public void sendToAllUsers(String message) {
@@ -138,6 +138,8 @@ public class AdamperServer extends javax.swing.JFrame {
 
     setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
     setTitle("Server - Adamper");
+    setMinimumSize(new java.awt.Dimension(510, 360));
+    setPreferredSize(new java.awt.Dimension(500, 350));
 
     startServerBtn.setText("Uruchom serwer");
     startServerBtn.addActionListener(new java.awt.event.ActionListener() {
