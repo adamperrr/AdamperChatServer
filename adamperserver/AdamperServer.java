@@ -9,15 +9,8 @@ import java.awt.*;
 
 import msg.*;
 
-/**
- *
- * @author adamp
- */
 public class AdamperServer extends javax.swing.JFrame {
 
-  /**
-   * @param args the command line arguments
-   */
   public static void main(String args[]) {
     /* Set the Nimbus look and feel */
     //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
@@ -50,9 +43,6 @@ public class AdamperServer extends javax.swing.JFrame {
     });
   }
 
-  /**
-   * Creates new form AdamperServer
-   */
   public AdamperServer() {
     initComponents();
   }
@@ -92,28 +82,23 @@ public class AdamperServer extends javax.swing.JFrame {
     _usersList.add(name);
 
     for(String tempName : _usersList) {
-      Message tempMessage = new Message(MsgType.Connect, tempName, "połączył się.");
-      sendToAllUsers(tempMessage.getMessage());
+      Message tempMessage1 = new Message(MsgType.Connect, tempName, "połączył się.");
+      sendToAllUsers(tempMessage1.getMessage());
     }
-    Message tempMessage = new Message(MsgType.Done, "Serwer", "połączył się.");
-    sendToAllUsers(tempMessage.getMessage());
+    
+    Message tempMessage2 = new Message(MsgType.Done, "Serwer", "połączył się.");
+    sendToAllUsers(tempMessage2.getMessage());
   }
 
   public void removeUser(String inName) {
-    //
-    //    _usersList.remove(name);
-    //    String[] tempList = new String[(_usersList.size())];
-    //    _usersList.toArray(tempList);
-    //
-    //
     _usersList.remove(inName);
 
     for(String tempName : _usersList) {
-      Message message = new Message(MsgType.Connect, tempName,"połączył się.");
-      sendToAllUsers(message.getMessage());
+      Message message1 = new Message(MsgType.Connect, tempName,"połączył się.");
+      sendToAllUsers(message1.getMessage());
     }
-    Message tempMessage = new Message(MsgType.Done, "Serwer", "połączył się.");
-    sendToAllUsers(tempMessage.getMessage());
+    Message tempMessage2 = new Message(MsgType.Done, "Serwer", "połączył się.");
+    sendToAllUsers(tempMessage2.getMessage());
   }
 
   public void initialiseOutputStreams() {
@@ -246,11 +231,11 @@ public class AdamperServer extends javax.swing.JFrame {
 
   private void stopServerBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_stopServerBtnActionPerformed
     try {
-      Thread.sleep(5000);                 //5000 milliseconds is five second.
+      Thread.sleep(5000); //5000 milliseconds is five second.
     } catch (InterruptedException ex) {
       Thread.currentThread().interrupt();
     }
-    Message tempMessage = new Message(MsgType.Chat, "Serwer", "jest zatrzymany - wszyscy użytkownicy zostaną wylogowani.\n");
+    Message tempMessage = new Message(MsgType.Chat, "Serwer", "został zatrzymany - wszyscy użytkownicy zostaną wylogowani.\n");
     sendToAllUsers(tempMessage.getMessage());
     appendMsg("Serwer zatrzymany...");
 
@@ -269,7 +254,7 @@ public class AdamperServer extends javax.swing.JFrame {
   }//GEN-LAST:event_displayAllUsersBtnActionPerformed
 
   private void startServerBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startServerBtnActionPerformed
-    ServerStart tempServerStart = new ServerStart(this);
+    ServerStart tempServerStart = new ServerStart(this, _port);
     Thread starter = new Thread(tempServerStart);
     starter.start();
 
@@ -294,6 +279,7 @@ public class AdamperServer extends javax.swing.JFrame {
 
   private ArrayList<PrintWriter> _outputStreams;
   private ArrayList<String> _usersList;
+  private int _port = 2222;
 
   // Variables declaration - do not modify//GEN-BEGIN:variables
   private javax.swing.JButton clearScreenBtn;

@@ -8,31 +8,33 @@ import msg.*;
 
 public class ServerStart implements Runnable {
 
-  public ServerStart(AdamperServer frame) {
-    mainFrame = frame;
+  public ServerStart(AdamperServer frame, int port) {
+    _mainFrame = frame;
+    _port = port;
   }
 
   @Override
   public void run() {
-    mainFrame.initialiseOutputStreams();
-    mainFrame.initialiseUsersList();
+    _mainFrame.initialiseOutputStreams();
+    _mainFrame.initialiseUsersList();
 
-    try {
-      ServerSocket serverSock = new ServerSocket(2222);
+    try{
+      ServerSocket serverSock = new ServerSocket(_port);
 
-      while (true) {
+      while(true) {
         Socket clientSock = serverSock.accept();
         PrintWriter writer = new PrintWriter(clientSock.getOutputStream());
-        mainFrame.addUserToOutputStreams(writer);
+        _mainFrame.addUserToOutputStreams(writer);
 
-        Thread listener = new Thread(new ClientHandler(clientSock, writer, mainFrame));
+        Thread listener = new Thread(new ClientHandler(clientSock, writer, _mainFrame));
         listener.start();
-        mainFrame.appendMsg("Uzyskano połaczenie...");
+        _mainFrame.appendMsg("Uzyskano połaczenie...");
       }
     } catch (Exception ex) {
-      mainFrame.appendMsg("Błąd podczas zestawiania połączenia...");
+      _mainFrame.appendMsg("Błąd podczas zestawiania połączenia...");
     }
   }
 
-  private AdamperServer mainFrame;
+  private AdamperServer _mainFrame;
+  private int _port;
 }

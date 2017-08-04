@@ -9,14 +9,12 @@ import msg.*;
 public class ClientHandler implements Runnable {
 
   public ClientHandler(Socket clientSocket, PrintWriter user, AdamperServer frame) {
-
     _mainFrame = frame;
-
     _client = user;
     try {
-      _sock = clientSocket;
-      InputStreamReader isReader = new InputStreamReader(_sock.getInputStream());
-      _reader = new BufferedReader(isReader);
+      _socket = clientSocket;
+      InputStreamReader inReader = new InputStreamReader(_socket.getInputStream());
+      _reader = new BufferedReader(inReader);
     } catch (Exception ex) {
       _mainFrame.appendMsg("Nieoczekiwany błąd...");
     }
@@ -26,31 +24,32 @@ public class ClientHandler implements Runnable {
   @Override
   public void run() {
     String stream;
-   
+
     try {
       while ((stream = _reader.readLine()) != null) {
-        
-        _mainFrame.appendMsg("Otrzymano: " + stream);
-        Message tempMsg = new Message(stream);
 
-        switch(tempMsg.getType()) {
+        _mainFrame.appendMsg("Otrzymano: " + stream);
+        Message receivedMsg = new Message(stream);
+        Message outMsg = null;
+
+        switch (receivedMsg.getType()) {
           case Chat:
-            _mainFrame.sendToAllUsers(tempMsg.getMessage());
-          break;
+            _mainFrame.sendToAllUsers(receivedMsg.getMessage());
+            break;
           case Connect:
-            Message tempMsg1 = new Message(MsgType.Chat, tempMsg.getUsername(), tempMsg.getContent());
-            _mainFrame.sendToAllUsers(tempMsg1.getMessage());
-            _mainFrame.addUser(tempMsg.getUsername());
-          break;
+            outMsg = new Message(MsgType.Chat, receivedMsg.getUsername(), receivedMsg.getContent());
+            _mainFrame.sendToAllUsers(outMsg.getMessage());
+            _mainFrame.addUser(receivedMsg.getUsername());
+            break;
           case Disconnect:
-            Message tempMsg2 = new Message(MsgType.Chat, tempMsg.getUsername(), "rozłączył się.");
-            _mainFrame.sendToAllUsers(tempMsg2.getMessage());
-            _mainFrame.removeUser(tempMsg.getUsername());
-          break;
+            outMsg = new Message(MsgType.Chat, receivedMsg.getUsername(), "rozłączył się.");
+            _mainFrame.sendToAllUsers(outMsg.getMessage());
+            _mainFrame.removeUser(receivedMsg.getUsername());
+            break;
           default:
             _mainFrame.appendMsg("Błąd w wiadomości...");
-          break;
-        }        
+            break;
+        }
       }
     } catch (Exception ex) {
       _mainFrame.appendMsg("Utracono połączenie...");
@@ -60,7 +59,7 @@ public class ClientHandler implements Runnable {
   }
 
   private AdamperServer _mainFrame;
-  private Socket _sock;
+  private Socket _socket;
   private PrintWriter _client;
   private BufferedReader _reader;
 }
