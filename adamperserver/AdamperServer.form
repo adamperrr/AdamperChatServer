@@ -60,7 +60,7 @@
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="clearScreenBtn" min="-2" pref="235" max="-2" attributes="0"/>
                       <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                      <Component id="displayAllUsersBtn" min="-2" pref="235" max="-2" attributes="0"/>
+                      <Component id="displayOnlineUsersBtn" min="-2" pref="235" max="-2" attributes="0"/>
                   </Group>
                   <Component id="messageToAllLabel" alignment="0" min="-2" max="-2" attributes="0"/>
               </Group>
@@ -80,7 +80,7 @@
               <Component id="jScrollPane1" pref="197" max="32767" attributes="0"/>
               <EmptySpace min="-2" pref="10" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="2" attributes="0">
-                  <Component id="displayAllUsersBtn" alignment="2" min="-2" max="-2" attributes="0"/>
+                  <Component id="displayOnlineUsersBtn" alignment="2" min="-2" max="-2" attributes="0"/>
                   <Component id="clearScreenBtn" alignment="2" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" pref="10" max="-2" attributes="0"/>
@@ -120,12 +120,12 @@
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="clearScreenBtnActionPerformed"/>
       </Events>
     </Component>
-    <Component class="javax.swing.JButton" name="displayAllUsersBtn">
+    <Component class="javax.swing.JButton" name="displayOnlineUsersBtn">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Wy&#x15b;wietl wszystkich u&#x17c;ytkownik&#xf3;w"/>
+        <Property name="text" type="java.lang.String" value="Wy&#x15b;wietl u&#x17c;ytkownik&#xf3;w online"/>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="displayAllUsersBtnActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="displayOnlineUsersBtnActionPerformed"/>
       </Events>
     </Component>
     <Component class="javax.swing.JTextField" name="messageToAllTextField">
@@ -151,6 +151,9 @@
       <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
       <SubComponents>
         <Component class="javax.swing.JTextPane" name="mainTextArea">
+          <Properties>
+            <Property name="editable" type="boolean" value="false"/>
+          </Properties>
         </Component>
       </SubComponents>
     </Container>

@@ -52,6 +52,7 @@ public class AdamperServer extends javax.swing.JFrame {
     inputText = inputText.trim() + "\n";
     try {
       doc.insertString(doc.getLength(), inputText, null);
+      scroolDown();
     } catch (Exception e) {
       System.out.println(e);
     }
@@ -66,7 +67,6 @@ public class AdamperServer extends javax.swing.JFrame {
         writer.println(inputText);
         appendMsg("Wysłano: " + inputText);
         writer.flush();
-        mainTextArea.setCaretPosition(mainTextArea.getDocument().getLength());
 
       } catch (Exception ex) {
         appendMsg("Błąd wiadomości do wszystkich... ");
@@ -113,6 +113,10 @@ public class AdamperServer extends javax.swing.JFrame {
     _outputStreams.remove(user);
   }
 
+  private void scroolDown() {
+    mainTextArea.setCaretPosition(mainTextArea.getDocument().getLength());
+  }  
+  
   /**
    * This method is called from within the constructor to initialize the form.
    * WARNING: Do NOT modify this code. The content of this method is always
@@ -127,7 +131,7 @@ public class AdamperServer extends javax.swing.JFrame {
     startServerBtn = new javax.swing.JButton();
     stopServerBtn = new javax.swing.JButton();
     clearScreenBtn = new javax.swing.JButton();
-    displayAllUsersBtn = new javax.swing.JButton();
+    displayOnlineUsersBtn = new javax.swing.JButton();
     messageToAllTextField = new javax.swing.JTextField();
     sendToAllBtn = new javax.swing.JButton();
     messageToAllLabel = new javax.swing.JLabel();
@@ -162,10 +166,10 @@ public class AdamperServer extends javax.swing.JFrame {
       }
     });
 
-    displayAllUsersBtn.setText("Wyświetl wszystkich użytkowników");
-    displayAllUsersBtn.addActionListener(new java.awt.event.ActionListener() {
+    displayOnlineUsersBtn.setText("Wyświetl użytkowników online");
+    displayOnlineUsersBtn.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
-        displayAllUsersBtnActionPerformed(evt);
+        displayOnlineUsersBtnActionPerformed(evt);
       }
     });
 
@@ -178,6 +182,7 @@ public class AdamperServer extends javax.swing.JFrame {
 
     messageToAllLabel.setText("Wyślij wiadomość do wszystkich użytkowników");
 
+    mainTextArea.setEditable(false);
     jScrollPane1.setViewportView(mainTextArea);
 
     javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -199,7 +204,7 @@ public class AdamperServer extends javax.swing.JFrame {
           .addGroup(layout.createSequentialGroup()
             .addComponent(clearScreenBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 235, javax.swing.GroupLayout.PREFERRED_SIZE)
             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-            .addComponent(displayAllUsersBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 235, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addComponent(displayOnlineUsersBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 235, javax.swing.GroupLayout.PREFERRED_SIZE))
           .addComponent(messageToAllLabel))
         .addContainerGap())
     );
@@ -214,7 +219,7 @@ public class AdamperServer extends javax.swing.JFrame {
         .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 197, Short.MAX_VALUE)
         .addGap(10, 10, 10)
         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
-          .addComponent(displayAllUsersBtn)
+          .addComponent(displayOnlineUsersBtn)
           .addComponent(clearScreenBtn))
         .addGap(10, 10, 10)
         .addComponent(messageToAllLabel)
@@ -246,12 +251,12 @@ public class AdamperServer extends javax.swing.JFrame {
     mainTextArea.setText("");
   }//GEN-LAST:event_clearScreenBtnActionPerformed
 
-  private void displayAllUsersBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_displayAllUsersBtnActionPerformed
+  private void displayOnlineUsersBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_displayOnlineUsersBtnActionPerformed
     appendMsg("\n Użytkownicy online :");
     for (String currentUser : _usersList) {
       appendMsg("\t" + currentUser);
     }
-  }//GEN-LAST:event_displayAllUsersBtnActionPerformed
+  }//GEN-LAST:event_displayOnlineUsersBtnActionPerformed
 
   private void startServerBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startServerBtnActionPerformed
     ServerStart tempServerStart = new ServerStart(this, _port);
@@ -283,7 +288,7 @@ public class AdamperServer extends javax.swing.JFrame {
 
   // Variables declaration - do not modify//GEN-BEGIN:variables
   private javax.swing.JButton clearScreenBtn;
-  private javax.swing.JButton displayAllUsersBtn;
+  private javax.swing.JButton displayOnlineUsersBtn;
   private javax.swing.JEditorPane jEditorPane1;
   private javax.swing.JScrollPane jScrollPane1;
   private javax.swing.JScrollPane jScrollPane2;
