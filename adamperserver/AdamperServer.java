@@ -57,24 +57,24 @@ public class AdamperServer extends javax.swing.JFrame {
     initComponents();
   }
 
-  public void appendMsg(String inText) {
+  public void appendMsg(String inputText) {
     StyledDocument doc = mainTextArea.getStyledDocument();
-    inText = inText.trim() + "\n";
+    inputText = inputText.trim() + "\n";
     try {
-      doc.insertString(doc.getLength(), inText, null);
+      doc.insertString(doc.getLength(), inputText, null);
     } catch (Exception e) {
       System.out.println(e);
     }
   }
 
-  public void sendToAllUsers(String inText) {
+  public void sendToAllUsers(String inputText) {
     Iterator it = _outputStreams.iterator();
 
     while (it.hasNext()) {
       try {
         PrintWriter writer = (PrintWriter) it.next();
-        writer.println(inText);
-        appendMsg("Wysłano: " + inText);
+        writer.println(inputText);
+        appendMsg("Wysłano: " + inputText);
         writer.flush();
         mainTextArea.setCaretPosition(mainTextArea.getDocument().getLength());
 
