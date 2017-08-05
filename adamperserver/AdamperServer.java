@@ -292,7 +292,7 @@ public class AdamperServer extends javax.swing.JFrame {
   }//GEN-LAST:event_displayOnlineUsersBtnActionPerformed
 
   private void startServerBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startServerBtnActionPerformed
-    ServerStart tempServerStart = new ServerStart(this, _port);
+    ServerRunnable tempServerStart = new ServerRunnable(this, _port);
     Thread starter = new Thread(tempServerStart);
     starter.start();
 
@@ -321,7 +321,7 @@ public class AdamperServer extends javax.swing.JFrame {
 
   private ArrayList<PrintWriter> _outputStreams;
   private ArrayList<String> _usersList;
-  private int _port = 2222;
+  private int _port = 1995;
 
   // Variables declaration - do not modify//GEN-BEGIN:variables
   private javax.swing.JButton clearScreenBtn;

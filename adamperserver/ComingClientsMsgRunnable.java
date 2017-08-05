@@ -6,9 +6,9 @@ import java.net.*;
 
 import msg.*;
 
-public class ClientHandler implements Runnable {
+public class ComingClientsMsgRunnable implements Runnable {
 
-  public ClientHandler(Socket clientSocket, PrintWriter user, AdamperServer frame) {
+  public ComingClientsMsgRunnable(Socket clientSocket, PrintWriter user, AdamperServer frame) {
     _mainFrame = frame;
     _client = user;
     try {

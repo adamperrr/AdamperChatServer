@@ -6,9 +6,9 @@ import java.net.*;
 
 import msg.*;
 
-public class ServerStart implements Runnable {
+public class ServerRunnable implements Runnable {
 
-  public ServerStart(AdamperServer frame, int port) {
+  public ServerRunnable(AdamperServer frame, int port) {
     _mainFrame = frame;
     _port = port;
   }
@@ -26,7 +26,7 @@ public class ServerStart implements Runnable {
         PrintWriter writer = new PrintWriter(clientSock.getOutputStream());
         _mainFrame.addUserToOutputStreams(writer);
 
-        Thread listener = new Thread(new ClientHandler(clientSock, writer, _mainFrame));
+        Thread listener = new Thread(new ComingClientsMsgRunnable(clientSock, writer, _mainFrame));
         listener.start();
         _mainFrame.appendMsg("Uzyskano połaczenie...");
       }
