@@ -54,7 +54,7 @@ public class ComingClientsMsgRunnable implements Runnable {
         }
       }
     } catch (Exception e) {
-      _mainFrame.appendError(e.toString());
+      _mainFrame.appendError("Comming... - run" + e.toString());
       _mainFrame.appendError("Utracono połączenie...");
       _mainFrame.removeUserFromOutputStreams(_client);
     }

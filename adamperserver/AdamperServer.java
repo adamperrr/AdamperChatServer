@@ -54,7 +54,7 @@ public class AdamperServer extends javax.swing.JFrame {
       doc.insertString(doc.getLength(), inputText, null);
       scroolDown();
     } catch (Exception e) {
-      appendError(e.toString());
+      appendError("appendMsg: " + e.toString());
     }
   }
   
@@ -69,7 +69,9 @@ public class AdamperServer extends javax.swing.JFrame {
     try {
       doc.insertString(doc.getLength(), inputText, keyWord);
       scroolDown();
-    } catch (Exception e) { }
+    } catch (Exception e) {
+      appendMsg("appendError: " + e.toString());
+    }
   }  
 
   public void sendToAllUsers(String inputText) {
@@ -105,7 +107,7 @@ public class AdamperServer extends javax.swing.JFrame {
       sendToAllUsers(tempMessage2.getMessage());
 
     } catch (Exception e) {
-      appendError(e.toString());
+      appendError("addUser: " + e.toString());
     }
   }
 
@@ -122,7 +124,7 @@ public class AdamperServer extends javax.swing.JFrame {
       sendToAllUsers(tempMessage2.getMessage());
       
     } catch (Exception e) {
-      appendError(e.toString());
+      appendError("removeUser: " + e.toString());
     }
   }
 
@@ -274,7 +276,7 @@ public class AdamperServer extends javax.swing.JFrame {
       mainTextArea.setText("");
 
     } catch (Exception e) {
-      appendError(e.toString());
+      appendError("stopServerBtnActionPerformed: " + e.toString());
     }
   }//GEN-LAST:event_stopServerBtnActionPerformed
 
@@ -307,7 +309,7 @@ public class AdamperServer extends javax.swing.JFrame {
         Message tempMessage = new Message(MsgType.Chat, "ADMINISTRATOR", messageToAllTextField.getText());
         sendToAllUsers(tempMessage.getMessage());
       } catch (Exception e) {
-        appendError(e.toString());
+        appendError("sendToAllBtnActionPerformed: " + e.toString());
       }
       messageToAllTextField.setText("");
       messageToAllTextField.requestFocus();
