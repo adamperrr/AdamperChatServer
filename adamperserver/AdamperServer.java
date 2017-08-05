@@ -67,11 +67,9 @@ public class AdamperServer extends javax.swing.JFrame {
     StyleConstants.setBold(keyWord, true);
     
     try {
-      doc.insertString(doc.getLength(), inputText, null);
+      doc.insertString(doc.getLength(), inputText, keyWord);
       scroolDown();
-    } catch (Exception e) {
-      appendError(e.toString());
-    }
+    } catch (Exception e) { }
   }  
 
   public void sendToAllUsers(String inputText) {

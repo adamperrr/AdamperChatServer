@@ -28,7 +28,7 @@ public class ServerRunnable implements Runnable {
 
         Thread listener = new Thread(new ComingClientsMsgRunnable(clientSock, writer, _mainFrame));
         listener.start();
-        _mainFrame.appendError("Uzyskano połaczenie...");
+        _mainFrame.appendMsg("Uzyskano połaczenie...");
       }
     } catch (Exception e) {
       _mainFrame.appendError("Błąd podczas zestawiania połączenia...");
