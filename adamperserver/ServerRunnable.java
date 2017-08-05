@@ -28,10 +28,10 @@ public class ServerRunnable implements Runnable {
 
         Thread listener = new Thread(new ComingClientsMsgRunnable(clientSock, writer, _mainFrame));
         listener.start();
-        _mainFrame.appendMsg("Uzyskano połaczenie...");
+        _mainFrame.appendError("Uzyskano połaczenie...");
       }
-    } catch (Exception ex) {
-      _mainFrame.appendMsg("Błąd podczas zestawiania połączenia...");
+    } catch (Exception e) {
+      _mainFrame.appendError("Błąd podczas zestawiania połączenia...");
     }
   }
 

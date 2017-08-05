@@ -15,8 +15,8 @@ public class ComingClientsMsgRunnable implements Runnable {
       _socket = clientSocket;
       InputStreamReader inReader = new InputStreamReader(_socket.getInputStream());
       _reader = new BufferedReader(inReader);
-    } catch (Exception ex) {
-      _mainFrame.appendMsg("Nieoczekiwany błąd...");
+    } catch (Exception e) {
+      _mainFrame.appendError("Nieoczekiwany błąd...");
     }
 
   }
@@ -53,10 +53,9 @@ public class ComingClientsMsgRunnable implements Runnable {
             break;
         }
       }
-    } catch (Exception ex) {
-      _mainFrame.appendError(ex.toString());
-      _mainFrame.appendMsg("Utracono połączenie...");
-      ex.printStackTrace();
+    } catch (Exception e) {
+      _mainFrame.appendError(e.toString());
+      _mainFrame.appendError("Utracono połączenie...");
       _mainFrame.removeUserFromOutputStreams(_client);
     }
   }

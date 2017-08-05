@@ -24,14 +24,14 @@ public class AdamperServer extends javax.swing.JFrame {
           break;
         }
       }
-    } catch (ClassNotFoundException ex) {
-      java.util.logging.Logger.getLogger(AdamperServer.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-    } catch (InstantiationException ex) {
-      java.util.logging.Logger.getLogger(AdamperServer.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-    } catch (IllegalAccessException ex) {
-      java.util.logging.Logger.getLogger(AdamperServer.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-    } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-      java.util.logging.Logger.getLogger(AdamperServer.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+    } catch (ClassNotFoundException e) {
+      java.util.logging.Logger.getLogger(AdamperServer.class.getName()).log(java.util.logging.Level.SEVERE, null, e);
+    } catch (InstantiationException e) {
+      java.util.logging.Logger.getLogger(AdamperServer.class.getName()).log(java.util.logging.Level.SEVERE, null, e);
+    } catch (IllegalAccessException e) {
+      java.util.logging.Logger.getLogger(AdamperServer.class.getName()).log(java.util.logging.Level.SEVERE, null, e);
+    } catch (javax.swing.UnsupportedLookAndFeelException e) {
+      java.util.logging.Logger.getLogger(AdamperServer.class.getName()).log(java.util.logging.Level.SEVERE, null, e);
     }
     //</editor-fold>
 
@@ -54,7 +54,7 @@ public class AdamperServer extends javax.swing.JFrame {
       doc.insertString(doc.getLength(), inputText, null);
       scroolDown();
     } catch (Exception e) {
-      System.out.println(e);
+      appendError(e.toString());
     }
   }
   
@@ -70,7 +70,7 @@ public class AdamperServer extends javax.swing.JFrame {
       doc.insertString(doc.getLength(), inputText, null);
       scroolDown();
     } catch (Exception e) {
-      System.out.println(e);
+      appendError(e.toString());
     }
   }  
 
@@ -84,8 +84,8 @@ public class AdamperServer extends javax.swing.JFrame {
         appendMsg("Wysłano: " + inputText);
         writer.flush();
 
-      } catch (Exception ex) {
-        appendMsg("Błąd wiadomości do wszystkich... ");
+      } catch (Exception e) {
+        appendError("Błąd wiadomości do wszystkich... ");
       }
     }
   }
@@ -99,15 +99,15 @@ public class AdamperServer extends javax.swing.JFrame {
 
     try {
       for (String tempName : _usersList) {
-        Message tempMessage1 = new Message(MsgType.Connect, tempName, "połączył się.");
+        Message tempMessage1 = new Message(MsgType.Connect, tempName, "ConnectMsg");
         sendToAllUsers(tempMessage1.getMessage());
       }
       
-      Message tempMessage2 = new Message(MsgType.Done, "Serwer", "połączył się.");
+      Message tempMessage2 = new Message(MsgType.Done, "Serwer", "DoneMsg");
       sendToAllUsers(tempMessage2.getMessage());
 
-    } catch (Exception exc) {
-      appendError(exc.toString());
+    } catch (Exception e) {
+      appendError(e.toString());
     }
   }
 
@@ -116,15 +116,15 @@ public class AdamperServer extends javax.swing.JFrame {
 
     try {
       for (String tempName : _usersList) {
-        Message message1 = new Message(MsgType.Connect, tempName, "połączył się.");
+        Message message1 = new Message(MsgType.Connect, tempName, "ConnectMsg");
         sendToAllUsers(message1.getMessage());
       }
       
-      Message tempMessage2 = new Message(MsgType.Done, "Serwer", "połączył się.");
+      Message tempMessage2 = new Message(MsgType.Done, "Serwer", "DoneMsg");
       sendToAllUsers(tempMessage2.getMessage());
       
-    } catch (Exception exc) {
-      appendError(exc.toString());
+    } catch (Exception e) {
+      appendError(e.toString());
     }
   }
 
@@ -263,8 +263,8 @@ public class AdamperServer extends javax.swing.JFrame {
 
   private void stopServerBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_stopServerBtnActionPerformed
     try {
-      Thread.sleep(5000); //5000 milliseconds is five second.
-    } catch (InterruptedException ex) {
+      Thread.sleep(6000);
+    } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
     }
     try {
@@ -275,8 +275,8 @@ public class AdamperServer extends javax.swing.JFrame {
 
       mainTextArea.setText("");
 
-    } catch (Exception exc) {
-      appendError(exc.toString());
+    } catch (Exception e) {
+      appendError(e.toString());
     }
   }//GEN-LAST:event_stopServerBtnActionPerformed
 
@@ -308,8 +308,8 @@ public class AdamperServer extends javax.swing.JFrame {
       try {
         Message tempMessage = new Message(MsgType.Chat, "ADMINISTRATOR", messageToAllTextField.getText());
         sendToAllUsers(tempMessage.getMessage());
-      } catch (Exception exc) {
-        appendError(exc.toString());
+      } catch (Exception e) {
+        appendError(e.toString());
       }
       messageToAllTextField.setText("");
       messageToAllTextField.requestFocus();
