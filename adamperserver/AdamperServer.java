@@ -57,6 +57,22 @@ public class AdamperServer extends javax.swing.JFrame {
       System.out.println(e);
     }
   }
+  
+  public void appendError(String inputText) {
+    StyledDocument doc = mainTextArea.getStyledDocument();
+    inputText = inputText.trim() + "\n";
+    
+    SimpleAttributeSet keyWord = new SimpleAttributeSet();
+    StyleConstants.setForeground(keyWord, Color.RED);
+    StyleConstants.setBold(keyWord, true);
+    
+    try {
+      doc.insertString(doc.getLength(), inputText, null);
+      scroolDown();
+    } catch (Exception e) {
+      System.out.println(e);
+    }
+  }  
 
   public void sendToAllUsers(String inputText) {
     Iterator it = _outputStreams.iterator();
@@ -81,24 +97,35 @@ public class AdamperServer extends javax.swing.JFrame {
   public void addUser(String name) {
     _usersList.add(name);
 
-    for(String tempName : _usersList) {
-      Message tempMessage1 = new Message(MsgType.Connect, tempName, "połączył się.");
-      sendToAllUsers(tempMessage1.getMessage());
+    try {
+      for (String tempName : _usersList) {
+        Message tempMessage1 = new Message(MsgType.Connect, tempName, "połączył się.");
+        sendToAllUsers(tempMessage1.getMessage());
+      }
+      
+      Message tempMessage2 = new Message(MsgType.Done, "Serwer", "połączył się.");
+      sendToAllUsers(tempMessage2.getMessage());
+
+    } catch (Exception exc) {
+      appendError(exc.toString());
     }
-    
-    Message tempMessage2 = new Message(MsgType.Done, "Serwer", "połączył się.");
-    sendToAllUsers(tempMessage2.getMessage());
   }
 
   public void removeUser(String inName) {
     _usersList.remove(inName);
 
-    for(String tempName : _usersList) {
-      Message message1 = new Message(MsgType.Connect, tempName,"połączył się.");
-      sendToAllUsers(message1.getMessage());
+    try {
+      for (String tempName : _usersList) {
+        Message message1 = new Message(MsgType.Connect, tempName, "połączył się.");
+        sendToAllUsers(message1.getMessage());
+      }
+      
+      Message tempMessage2 = new Message(MsgType.Done, "Serwer", "połączył się.");
+      sendToAllUsers(tempMessage2.getMessage());
+      
+    } catch (Exception exc) {
+      appendError(exc.toString());
     }
-    Message tempMessage2 = new Message(MsgType.Done, "Serwer", "połączył się.");
-    sendToAllUsers(tempMessage2.getMessage());
   }
 
   public void initialiseOutputStreams() {
@@ -240,11 +267,17 @@ public class AdamperServer extends javax.swing.JFrame {
     } catch (InterruptedException ex) {
       Thread.currentThread().interrupt();
     }
-    Message tempMessage = new Message(MsgType.Chat, "Serwer", "został zatrzymany - wszyscy użytkownicy zostaną wylogowani.\n");
-    sendToAllUsers(tempMessage.getMessage());
-    appendMsg("Serwer zatrzymany...");
+    try {
+      Message tempMessage = new Message(MsgType.Chat, "Serwer", "został zatrzymany - wszyscy użytkownicy zostaną wylogowani.\n");
 
-    mainTextArea.setText("");
+      sendToAllUsers(tempMessage.getMessage());
+      appendMsg("Serwer zatrzymany...");
+
+      mainTextArea.setText("");
+
+    } catch (Exception exc) {
+      appendError(exc.toString());
+    }
   }//GEN-LAST:event_stopServerBtnActionPerformed
 
   private void clearScreenBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clearScreenBtnActionPerformed
@@ -272,8 +305,12 @@ public class AdamperServer extends javax.swing.JFrame {
       messageToAllTextField.setText("");
       messageToAllTextField.requestFocus();
     } else {
-      Message tempMessage = new Message(MsgType.Chat, "ADMINISTRATOR", messageToAllTextField.getText());
-      sendToAllUsers(tempMessage.getMessage());
+      try {
+        Message tempMessage = new Message(MsgType.Chat, "ADMINISTRATOR", messageToAllTextField.getText());
+        sendToAllUsers(tempMessage.getMessage());
+      } catch (Exception exc) {
+        appendError(exc.toString());
+      }
       messageToAllTextField.setText("");
       messageToAllTextField.requestFocus();
     }

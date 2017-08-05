@@ -31,10 +31,12 @@ public class ClientHandler implements Runnable {
         _mainFrame.appendMsg("Otrzymano: " + stream);
         Message receivedMsg = new Message(stream);
         Message outMsg = null;
+        // Server sends messages with date and time receiving a message, NOT date of sending by client.
 
         switch (receivedMsg.getType()) {
           case Chat:
-            _mainFrame.sendToAllUsers(receivedMsg.getMessage());
+            outMsg = new Message(MsgType.Chat, receivedMsg.getUsername(), receivedMsg.getContent());
+            _mainFrame.sendToAllUsers(outMsg.getMessage());
             break;
           case Connect:
             outMsg = new Message(MsgType.Chat, receivedMsg.getUsername(), receivedMsg.getContent());
@@ -52,6 +54,7 @@ public class ClientHandler implements Runnable {
         }
       }
     } catch (Exception ex) {
+      _mainFrame.appendError(ex.toString());
       _mainFrame.appendMsg("Utracono połączenie...");
       ex.printStackTrace();
       _mainFrame.removeUserFromOutputStreams(_client);
