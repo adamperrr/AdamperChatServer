@@ -266,7 +266,7 @@ public class AdamperServer extends javax.swing.JFrame {
       Thread.currentThread().interrupt();
     }
     try {
-      Message tempMessage = new Message(MsgType.Chat, "Serwer", "został zatrzymany - wszyscy użytkownicy zostaną wylogowani.\n");
+      Message tempMessage = new Message(MsgType.Chat, "Serwer", "został zatrzymany - wszyscy użytkownicy zostaną wylogowani.");
 
       sendToAllUsers(tempMessage.getMessage());
       appendMsg("Serwer zatrzymany...");
