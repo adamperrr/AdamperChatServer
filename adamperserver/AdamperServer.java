@@ -104,7 +104,7 @@ public class AdamperServer extends javax.swing.JFrame {
 
     try {
       for (Map.Entry<String, PrintWriter> entry : _usersMap.entrySet()) {
-        Message tempMessage1 = new Message(MsgType.Connect, entry.getKey(), "ConnectMsg");
+        Message tempMessage1 = new Message(MsgType.Connect, entry.getKey(), "FromServerConnectMsg");
         sendToAllUsers(tempMessage1.getMessage());
       }
       
@@ -121,7 +121,7 @@ public class AdamperServer extends javax.swing.JFrame {
 
     try {
       for (Map.Entry<String, PrintWriter> entry : _usersMap.entrySet()) {
-        Message message1 = new Message(MsgType.Connect, entry.getKey(), "ConnectMsg");
+        Message message1 = new Message(MsgType.Connect, entry.getKey(), "FromServerConnectMsg");
         sendToAllUsers(message1.getMessage());
       }
       
