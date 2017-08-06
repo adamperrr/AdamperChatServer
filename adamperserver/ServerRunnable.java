@@ -3,6 +3,7 @@ package adamperserver;
 import java.util.*;
 import java.io.*;
 import java.net.*;
+import javax.swing.JOptionPane;
 
 import msg.*;
 
@@ -15,8 +16,7 @@ public class ServerRunnable implements Runnable {
 
   @Override
   public void run() {
-    _mainFrame.initialiseOutputStreams();
-    _mainFrame.initialiseUsersList();
+    _mainFrame.initialiseUsersMap();
 
     try{
       ServerSocket serverSock = new ServerSocket(_port);
@@ -24,7 +24,6 @@ public class ServerRunnable implements Runnable {
       while(true) {
         Socket clientSock = serverSock.accept();
         PrintWriter writer = new PrintWriter(clientSock.getOutputStream());
-        _mainFrame.addUserToOutputStreams(writer);
 
         Thread listener = new Thread(new ComingClientsMsgRunnable(clientSock, writer, _mainFrame));
         listener.start();

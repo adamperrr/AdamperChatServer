@@ -82,11 +82,9 @@ public class AdamperServer extends javax.swing.JFrame {
   }  
 
   public void sendToAllUsers(String inputText) {
-    Iterator it = _outputStreams.iterator();
-
-    while (it.hasNext()) {
+    for (Map.Entry<String, PrintWriter> entry : _usersMap.entrySet()) {
       try {
-        PrintWriter writer = (PrintWriter) it.next();
+        PrintWriter writer = (PrintWriter) entry.getValue();
         writer.println(inputText);
         appendMsg("Wysłano: " + inputText);
         writer.flush();
@@ -97,16 +95,16 @@ public class AdamperServer extends javax.swing.JFrame {
     }
   }
 
-  public void initialiseUsersList() {
-    _usersList = new ArrayList();
+  public void initialiseUsersMap() {
+    _usersMap = Collections.synchronizedMap(new HashMap());
   }
 
-  public void addUser(String name) {
-    _usersList.add(name);
+  public void addUser(String name, PrintWriter writerObj) {
+    _usersMap.put(name, writerObj);
 
     try {
-      for (String tempName : _usersList) {
-        Message tempMessage1 = new Message(MsgType.Connect, tempName, "ConnectMsg");
+      for (Map.Entry<String, PrintWriter> entry : _usersMap.entrySet()) {
+        Message tempMessage1 = new Message(MsgType.Connect, entry.getKey(), "ConnectMsg");
         sendToAllUsers(tempMessage1.getMessage());
       }
       
@@ -118,12 +116,12 @@ public class AdamperServer extends javax.swing.JFrame {
     }
   }
 
-  public void removeUser(String inName) {
-    _usersList.remove(inName);
+  public void removeUser(String username) {
+    _usersMap.remove(username);
 
     try {
-      for (String tempName : _usersList) {
-        Message message1 = new Message(MsgType.Connect, tempName, "ConnectMsg");
+      for (Map.Entry<String, PrintWriter> entry : _usersMap.entrySet()) {
+        Message message1 = new Message(MsgType.Connect, entry.getKey(), "ConnectMsg");
         sendToAllUsers(message1.getMessage());
       }
       
@@ -134,19 +132,24 @@ public class AdamperServer extends javax.swing.JFrame {
       appendError("removeUser: " + e.toString());
     }
   }
-
-  public void initialiseOutputStreams() {
-    _outputStreams = new ArrayList();
+  
+  public void removeUserByPrintWriter(PrintWriter writer) {
+    String searchedKey = "";
+    boolean found = false;
+    for (Map.Entry<String, PrintWriter> entry : _usersMap.entrySet()) {
+      if(entry.getValue() == writer) {
+        found = true;
+        searchedKey = entry.getKey();
+        break;
+      }
+    }
+    
+    if(found) {
+      _usersMap.remove(searchedKey);
+    }
   }
-
-  public void addUserToOutputStreams(PrintWriter user) {
-    _outputStreams.add(user);
-  }
-
-  public void removeUserFromOutputStreams(PrintWriter user) {
-    _outputStreams.remove(user);
-  }
-
+  
+  
   private void scroolDown() {
     mainTextArea.setCaretPosition(mainTextArea.getDocument().getLength());
   }  
@@ -299,8 +302,8 @@ public class AdamperServer extends javax.swing.JFrame {
 
   private void displayOnlineUsersBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_displayOnlineUsersBtnActionPerformed
     appendMsg("\n Użytkownicy online :");
-    for (String currentUser : _usersList) {
-      appendMsg("\t" + currentUser);
+    for (Map.Entry<String, PrintWriter> entry : _usersMap.entrySet()) {
+      appendMsg("\t" + entry.getKey());
     }
   }//GEN-LAST:event_displayOnlineUsersBtnActionPerformed
 
@@ -340,8 +343,8 @@ public class AdamperServer extends javax.swing.JFrame {
     messageToAllTextField.requestFocus();
   }//GEN-LAST:event_sendToAllBtnActionPerformed
 
-  private ArrayList<PrintWriter> _outputStreams;
-  private ArrayList<String> _usersList;
+  Map<String, PrintWriter> _usersMap;
+  
   private boolean _serverStarted = false;
   private int _port = 1995;
 

@@ -8,9 +8,10 @@ import msg.*;
 
 public class ComingClientsMsgRunnable implements Runnable {
 
-  public ComingClientsMsgRunnable(Socket clientSocket, PrintWriter user, AdamperServer frame) {
+  public ComingClientsMsgRunnable(Socket clientSocket, PrintWriter writer, AdamperServer frame) {
     _mainFrame = frame;
-    _client = user;
+    _writer = writer;
+    
     try {
       _socket = clientSocket;
       InputStreamReader inReader = new InputStreamReader(_socket.getInputStream());
@@ -40,8 +41,8 @@ public class ComingClientsMsgRunnable implements Runnable {
             break;
           case Connect:
             outMsg = new Message(MsgType.Chat, receivedMsg.getUsername(), receivedMsg.getContent());
+            _mainFrame.addUser(receivedMsg.getUsername(), _writer);
             _mainFrame.sendToAllUsers(outMsg.getMessage());
-            _mainFrame.addUser(receivedMsg.getUsername());
             break;
           case Disconnect:
             outMsg = new Message(MsgType.Chat, receivedMsg.getUsername(), "rozłączył się.");
@@ -53,15 +54,18 @@ public class ComingClientsMsgRunnable implements Runnable {
             break;
         }
       }
+    } catch(java.net.SocketException e) {
+      // Thrown after every user disconnection
     } catch (Exception e) {
-      _mainFrame.appendError("Comming... - run" + e.toString());
+      _mainFrame.appendError("Comming... - run: " + e.toString());
       _mainFrame.appendError("Utracono połączenie...");
-      _mainFrame.removeUserFromOutputStreams(_client);
+      _mainFrame.removeUserByPrintWriter(_writer);
     }
   }
 
   private AdamperServer _mainFrame;
+
   private Socket _socket;
-  private PrintWriter _client;
+  private PrintWriter _writer;
   private BufferedReader _reader;
 }
