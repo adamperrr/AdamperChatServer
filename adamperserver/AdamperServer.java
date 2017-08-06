@@ -45,6 +45,13 @@ public class AdamperServer extends javax.swing.JFrame {
 
   public AdamperServer() {
     initComponents();
+
+    _serverStarted = false;
+    stopServerBtn.setEnabled(_serverStarted);
+    displayOnlineUsersBtn.setEnabled(_serverStarted);
+    messageToAllTextField.setEnabled(_serverStarted);
+    sendToAllBtn.setEnabled(_serverStarted);
+    startServerBtn.setEnabled(!_serverStarted);
   }
 
   public void appendMsg(String inputText) {
@@ -274,7 +281,13 @@ public class AdamperServer extends javax.swing.JFrame {
       appendMsg("Serwer zatrzymany...");
 
       mainTextArea.setText("");
-
+      
+      _serverStarted = false;
+      stopServerBtn.setEnabled(_serverStarted);
+      displayOnlineUsersBtn.setEnabled(_serverStarted);
+      messageToAllTextField.setEnabled(_serverStarted);
+      sendToAllBtn.setEnabled(_serverStarted);
+      startServerBtn.setEnabled(!_serverStarted);
     } catch (Exception e) {
       appendError("stopServerBtnActionPerformed: " + e.toString());
     }
@@ -292,11 +305,19 @@ public class AdamperServer extends javax.swing.JFrame {
   }//GEN-LAST:event_displayOnlineUsersBtnActionPerformed
 
   private void startServerBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startServerBtnActionPerformed
-    ServerRunnable tempServerStart = new ServerRunnable(this, _port);
-    Thread starter = new Thread(tempServerStart);
-    starter.start();
+    if (!_serverStarted) {
+      ServerRunnable tempServerStart = new ServerRunnable(this, _port);
+      Thread starter = new Thread(tempServerStart);
+      starter.start();
 
-    appendMsg("Serwer włączony...");
+      appendMsg("Serwer włączony...");
+      _serverStarted = true;
+      stopServerBtn.setEnabled(_serverStarted);
+      displayOnlineUsersBtn.setEnabled(_serverStarted);
+      messageToAllTextField.setEnabled(_serverStarted);
+      sendToAllBtn.setEnabled(_serverStarted);
+      startServerBtn.setEnabled(!_serverStarted);
+    }
   }//GEN-LAST:event_startServerBtnActionPerformed
 
   private void sendToAllBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendToAllBtnActionPerformed
@@ -321,6 +342,7 @@ public class AdamperServer extends javax.swing.JFrame {
 
   private ArrayList<PrintWriter> _outputStreams;
   private ArrayList<String> _usersList;
+  private boolean _serverStarted = false;
   private int _port = 1995;
 
   // Variables declaration - do not modify//GEN-BEGIN:variables
