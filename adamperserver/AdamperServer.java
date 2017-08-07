@@ -81,12 +81,12 @@ public class AdamperServer extends javax.swing.JFrame {
     }
   }  
 
-  public void sendToAllUsers(String inputText) {
+  public void sendToAllUsers(String messageText) {
     for (Map.Entry<String, PrintWriter> entry : _usersMap.entrySet()) {
       try {
         PrintWriter writer = (PrintWriter) entry.getValue();
-        writer.println(inputText);
-        appendMsg("Wysłano: " + inputText);
+        writer.println(messageText);
+        appendMsg("Wysłano: " + messageText);
         writer.flush();
 
       } catch (Exception e) {
@@ -95,6 +95,25 @@ public class AdamperServer extends javax.swing.JFrame {
     }
   }
 
+  public void sendToOneUser(String to, String from, PrintWriter writerFrom, String messageText) {
+    PrintWriter writerTo = _usersMap.get(to);
+
+    if (writerTo != null) {      
+      try {
+        writerTo.println(messageText);
+        writerFrom.println(messageText);
+        appendMsg("Wysłano od: " + from + " do " + to + ": " + messageText);
+        writerTo.flush();
+        writerFrom.flush();
+      } catch (Exception e) {
+        appendError("Błąd wiadomości do użytkownika: " + messageText + "...");
+      }
+    } else {
+      writerFrom.println(messageText);
+      writerFrom.flush();
+    } 
+  }
+  
   public void initialiseUsersMap() {
     _usersMap = Collections.synchronizedMap(new HashMap());
   }

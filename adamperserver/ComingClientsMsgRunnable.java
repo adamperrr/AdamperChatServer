@@ -36,8 +36,13 @@ public class ComingClientsMsgRunnable implements Runnable {
 
         switch (receivedMsg.getType()) {
           case Chat:
-            outMsg = new Message(MsgType.Chat, receivedMsg.getUsername(), receivedMsg.getContent());
-            _mainFrame.sendToAllUsers(outMsg.getMessage());
+            if(receivedMsg.getTo().equals("all")) {
+              outMsg = new Message(MsgType.Chat, receivedMsg.getUsername(), receivedMsg.getContent());
+              _mainFrame.sendToAllUsers(outMsg.getMessage());
+            } else {
+              outMsg = new Message(MsgType.Chat, receivedMsg.getUsername(), receivedMsg.getTo(), receivedMsg.getContent());
+              _mainFrame.sendToOneUser(outMsg.getTo(), outMsg.getUsername(), _writer, outMsg.getMessage());
+            }
             break;
           case Connect:
             outMsg = new Message(MsgType.Chat, receivedMsg.getUsername(), receivedMsg.getContent());
