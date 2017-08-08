@@ -37,22 +37,22 @@ public class ComingClientsMsgRunnable implements Runnable {
         switch (receivedMsg.getType()) {
           case Chat:
             if(receivedMsg.getTo().equals("all")) {
-              outMsg = new Message(MsgType.Chat, receivedMsg.getUsername(), receivedMsg.getContent());
+              outMsg = new Message(MsgType.Chat, receivedMsg.getFrom(), receivedMsg.getContent());
               _mainFrame.sendToAllUsers(outMsg.getMessage());
             } else {
-              outMsg = new Message(MsgType.Chat, receivedMsg.getUsername(), receivedMsg.getTo(), receivedMsg.getContent());
-              _mainFrame.sendToOneUser(outMsg.getTo(), outMsg.getUsername(), _writer, outMsg.getMessage());
+              outMsg = new Message(MsgType.Chat, receivedMsg.getFrom(), receivedMsg.getTo(), receivedMsg.getContent());
+              _mainFrame.sendToOneUser(outMsg.getTo(), outMsg.getFrom(), _writer, outMsg.getMessage());
             }
             break;
           case Connect:
-            outMsg = new Message(MsgType.Chat, receivedMsg.getUsername(), receivedMsg.getContent());
-            _mainFrame.addUser(receivedMsg.getUsername(), _writer);
+            outMsg = new Message(MsgType.Chat, receivedMsg.getFrom(), receivedMsg.getContent());
+            _mainFrame.addUser(receivedMsg.getFrom(), _writer);
             _mainFrame.sendToAllUsers(outMsg.getMessage());
             break;
           case Disconnect:
-            outMsg = new Message(MsgType.Chat, receivedMsg.getUsername(), "rozłączył się.");
+            outMsg = new Message(MsgType.Chat, receivedMsg.getFrom(), "rozłączył się.");
             _mainFrame.sendToAllUsers(outMsg.getMessage());
-            _mainFrame.removeUser(receivedMsg.getUsername());
+            _mainFrame.removeUser(receivedMsg.getFrom());
             break;
           default:
             _mainFrame.appendMsg("Błąd w wiadomości...");
