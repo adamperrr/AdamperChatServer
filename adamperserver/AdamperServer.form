@@ -16,7 +16,7 @@
   </NonVisualComponents>
   <Properties>
     <Property name="defaultCloseOperation" type="int" value="3"/>
-    <Property name="title" type="java.lang.String" value="Server - Adamper"/>
+    <Property name="title" type="java.lang.String" value="AdamperServer"/>
     <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
       <Dimension value="[510, 360]"/>
     </Property>
@@ -48,9 +48,9 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="jScrollPane1" max="32767" attributes="0"/>
                   <Group type="102" alignment="0" attributes="0">
-                      <Component id="messageToAllTextField" max="32767" attributes="0"/>
+                      <Component id="messageTextField" max="32767" attributes="0"/>
                       <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                      <Component id="sendToAllBtn" max="-2" attributes="0"/>
+                      <Component id="sendBtn" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" attributes="0">
                       <Component id="startServerBtn" min="-2" pref="235" max="-2" attributes="0"/>
@@ -62,7 +62,7 @@
                       <EmptySpace type="unrelated" max="-2" attributes="0"/>
                       <Component id="displayOnlineUsersBtn" min="-2" pref="235" max="-2" attributes="0"/>
                   </Group>
-                  <Component id="messageToAllLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                  <Component id="messageLabel" alignment="0" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -84,11 +84,11 @@
                   <Component id="clearScreenBtn" alignment="2" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" pref="10" max="-2" attributes="0"/>
-              <Component id="messageToAllLabel" min="-2" max="-2" attributes="0"/>
+              <Component id="messageLabel" min="-2" max="-2" attributes="0"/>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                  <Component id="messageToAllTextField" max="32767" attributes="0"/>
-                  <Component id="sendToAllBtn" pref="34" max="32767" attributes="0"/>
+                  <Component id="messageTextField" max="32767" attributes="0"/>
+                  <Component id="sendBtn" pref="34" max="32767" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
           </Group>
@@ -128,17 +128,17 @@
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="displayOnlineUsersBtnActionPerformed"/>
       </Events>
     </Component>
-    <Component class="javax.swing.JTextField" name="messageToAllTextField">
+    <Component class="javax.swing.JTextField" name="messageTextField">
     </Component>
-    <Component class="javax.swing.JButton" name="sendToAllBtn">
+    <Component class="javax.swing.JButton" name="sendBtn">
       <Properties>
         <Property name="text" type="java.lang.String" value="Wy&#x15b;lij"/>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="sendToAllBtnActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="sendBtnActionPerformed"/>
       </Events>
     </Component>
-    <Component class="javax.swing.JLabel" name="messageToAllLabel">
+    <Component class="javax.swing.JLabel" name="messageLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="Wy&#x15b;lij wiadomo&#x15b;&#x107; do wszystkich u&#x17c;ytkownik&#xf3;w"/>
       </Properties>

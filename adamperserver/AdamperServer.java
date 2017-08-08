@@ -49,8 +49,8 @@ public class AdamperServer extends javax.swing.JFrame {
     _serverStarted = false;
     stopServerBtn.setEnabled(_serverStarted);
     displayOnlineUsersBtn.setEnabled(_serverStarted);
-    messageToAllTextField.setEnabled(_serverStarted);
-    sendToAllBtn.setEnabled(_serverStarted);
+    messageTextField.setEnabled(_serverStarted);
+    sendBtn.setEnabled(_serverStarted);
     startServerBtn.setEnabled(!_serverStarted);
   }
 
@@ -106,11 +106,27 @@ public class AdamperServer extends javax.swing.JFrame {
         writerTo.flush();
         writerFrom.flush();
       } catch (Exception e) {
-        appendError("Błąd wiadomości do użytkownika: " + messageText + "...");
+        appendError("Błąd wiadomości do użytkownika: " + to + "...");
       }
     } else {
       writerFrom.println(messageText);
       writerFrom.flush();
+    } 
+  }
+ 
+  public void sendToOneUserFromAdmin(String to, String messageText) {
+    PrintWriter writerTo = _usersMap.get(to);
+
+    if (writerTo != null) {      
+      try {
+        writerTo.println(messageText);
+        appendMsg("Wysłano od: ADMINISTRATOR do " + to + ": " + messageText);
+        writerTo.flush();
+      } catch (Exception e) {
+        appendError("Błąd wiadomości do użytkownika: " + to + "...");
+      }
+    } else {
+      appendError("Błąd wiadomości do użytkownika: " + to + "...");
     } 
   }
   
@@ -188,16 +204,16 @@ public class AdamperServer extends javax.swing.JFrame {
     stopServerBtn = new javax.swing.JButton();
     clearScreenBtn = new javax.swing.JButton();
     displayOnlineUsersBtn = new javax.swing.JButton();
-    messageToAllTextField = new javax.swing.JTextField();
-    sendToAllBtn = new javax.swing.JButton();
-    messageToAllLabel = new javax.swing.JLabel();
+    messageTextField = new javax.swing.JTextField();
+    sendBtn = new javax.swing.JButton();
+    messageLabel = new javax.swing.JLabel();
     jScrollPane1 = new javax.swing.JScrollPane();
     mainTextArea = new javax.swing.JTextPane();
 
     jScrollPane2.setViewportView(jEditorPane1);
 
     setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-    setTitle("Server - Adamper");
+    setTitle("AdamperServer");
     setMinimumSize(new java.awt.Dimension(510, 360));
     setPreferredSize(new java.awt.Dimension(500, 350));
 
@@ -229,14 +245,14 @@ public class AdamperServer extends javax.swing.JFrame {
       }
     });
 
-    sendToAllBtn.setText("Wyślij");
-    sendToAllBtn.addActionListener(new java.awt.event.ActionListener() {
+    sendBtn.setText("Wyślij");
+    sendBtn.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
-        sendToAllBtnActionPerformed(evt);
+        sendBtnActionPerformed(evt);
       }
     });
 
-    messageToAllLabel.setText("Wyślij wiadomość do wszystkich użytkowników");
+    messageLabel.setText("Wyślij wiadomość do wszystkich użytkowników");
 
     mainTextArea.setEditable(false);
     jScrollPane1.setViewportView(mainTextArea);
@@ -250,9 +266,9 @@ public class AdamperServer extends javax.swing.JFrame {
         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
           .addComponent(jScrollPane1)
           .addGroup(layout.createSequentialGroup()
-            .addComponent(messageToAllTextField)
+            .addComponent(messageTextField)
             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-            .addComponent(sendToAllBtn))
+            .addComponent(sendBtn))
           .addGroup(layout.createSequentialGroup()
             .addComponent(startServerBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 235, javax.swing.GroupLayout.PREFERRED_SIZE)
             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -261,7 +277,7 @@ public class AdamperServer extends javax.swing.JFrame {
             .addComponent(clearScreenBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 235, javax.swing.GroupLayout.PREFERRED_SIZE)
             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
             .addComponent(displayOnlineUsersBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 235, javax.swing.GroupLayout.PREFERRED_SIZE))
-          .addComponent(messageToAllLabel))
+          .addComponent(messageLabel))
         .addContainerGap())
     );
     layout.setVerticalGroup(
@@ -278,11 +294,11 @@ public class AdamperServer extends javax.swing.JFrame {
           .addComponent(displayOnlineUsersBtn)
           .addComponent(clearScreenBtn))
         .addGap(10, 10, 10)
-        .addComponent(messageToAllLabel)
+        .addComponent(messageLabel)
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-          .addComponent(messageToAllTextField)
-          .addComponent(sendToAllBtn, javax.swing.GroupLayout.DEFAULT_SIZE, 34, Short.MAX_VALUE))
+          .addComponent(messageTextField)
+          .addComponent(sendBtn, javax.swing.GroupLayout.DEFAULT_SIZE, 34, Short.MAX_VALUE))
         .addContainerGap())
     );
 
@@ -296,6 +312,7 @@ public class AdamperServer extends javax.swing.JFrame {
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
     }
+    
     try {
       Message tempMessage = new Message(MsgType.Chat, "Serwer", "został zatrzymany - wszyscy użytkownicy zostaną wylogowani.");
 
@@ -307,8 +324,8 @@ public class AdamperServer extends javax.swing.JFrame {
       _serverStarted = false;
       stopServerBtn.setEnabled(_serverStarted);
       displayOnlineUsersBtn.setEnabled(_serverStarted);
-      messageToAllTextField.setEnabled(_serverStarted);
-      sendToAllBtn.setEnabled(_serverStarted);
+      messageTextField.setEnabled(_serverStarted);
+      sendBtn.setEnabled(_serverStarted);
       startServerBtn.setEnabled(!_serverStarted);
     } catch (Exception e) {
       appendError("stopServerBtnActionPerformed: " + e.toString());
@@ -336,31 +353,35 @@ public class AdamperServer extends javax.swing.JFrame {
       _serverStarted = true;
       stopServerBtn.setEnabled(_serverStarted);
       displayOnlineUsersBtn.setEnabled(_serverStarted);
-      messageToAllTextField.setEnabled(_serverStarted);
-      sendToAllBtn.setEnabled(_serverStarted);
+      messageTextField.setEnabled(_serverStarted);
+      sendBtn.setEnabled(_serverStarted);
       startServerBtn.setEnabled(!_serverStarted);
     }
   }//GEN-LAST:event_startServerBtnActionPerformed
 
-  private void sendToAllBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendToAllBtnActionPerformed
+  private void sendBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendBtnActionPerformed
     String nothing = "";
-    if ((messageToAllTextField.getText()).equals(nothing)) {
-      messageToAllTextField.setText("");
-      messageToAllTextField.requestFocus();
+    if ((messageTextField.getText()).equals(nothing)) {
+      messageTextField.setText("");
+      messageTextField.requestFocus();
     } else {
       try {
-        Message tempMessage = new Message(MsgType.Chat, "ADMINISTRATOR", messageToAllTextField.getText());
-        sendToAllUsers(tempMessage.getMessage());
+        Message tempMessage = new Message(MsgType.Chat, "ADMINISTRATOR", messageTextField.getText());
+        if(tempMessage.getTo().equals("all")) {
+          sendToAllUsers(tempMessage.getMessage());
+        } else {
+          sendToOneUserFromAdmin(tempMessage.getTo(), tempMessage.getMessage());
+        }
       } catch (Exception e) {
-        appendError("sendToAllBtnActionPerformed: " + e.toString());
+        appendError("sendBtnActionPerformed: " + e.toString());
       }
-      messageToAllTextField.setText("");
-      messageToAllTextField.requestFocus();
+      messageTextField.setText("");
+      messageTextField.requestFocus();
     }
 
-    messageToAllTextField.setText("");
-    messageToAllTextField.requestFocus();
-  }//GEN-LAST:event_sendToAllBtnActionPerformed
+    messageTextField.setText("");
+    messageTextField.requestFocus();
+  }//GEN-LAST:event_sendBtnActionPerformed
 
   Map<String, PrintWriter> _usersMap;
   
@@ -374,9 +395,9 @@ public class AdamperServer extends javax.swing.JFrame {
   private javax.swing.JScrollPane jScrollPane1;
   private javax.swing.JScrollPane jScrollPane2;
   private javax.swing.JTextPane mainTextArea;
-  private javax.swing.JLabel messageToAllLabel;
-  private javax.swing.JTextField messageToAllTextField;
-  private javax.swing.JButton sendToAllBtn;
+  private javax.swing.JLabel messageLabel;
+  private javax.swing.JTextField messageTextField;
+  private javax.swing.JButton sendBtn;
   private javax.swing.JButton startServerBtn;
   private javax.swing.JButton stopServerBtn;
   // End of variables declaration//GEN-END:variables
