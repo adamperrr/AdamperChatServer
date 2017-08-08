@@ -45,6 +45,8 @@ public class AdamperServer extends javax.swing.JFrame {
 
   public AdamperServer() {
     initComponents();
+    
+    loadProperties();
 
     _serverStarted = false;
     stopServerBtn.setEnabled(_serverStarted);
@@ -184,6 +186,31 @@ public class AdamperServer extends javax.swing.JFrame {
     }
   }
   
+  private void loadProperties() {
+    Properties prop = new Properties();
+    InputStream input = null;
+
+    try {
+      input = this.getClass().getResourceAsStream("/adamperserver/config.properties");
+
+      // load a properties file
+      prop.load(input);
+
+      // get the property value and print it out
+      _port = Integer.parseInt(prop.getProperty("port"));
+
+    } catch (IOException ex) {
+      ex.printStackTrace();
+    } finally {
+      if (input != null) {
+        try {
+          input.close();
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+      }
+    }
+  }
   
   private void scroolDown() {
     mainTextArea.setCaretPosition(mainTextArea.getDocument().getLength());
@@ -386,7 +413,7 @@ public class AdamperServer extends javax.swing.JFrame {
   Map<String, PrintWriter> _usersMap;
   
   private boolean _serverStarted = false;
-  private int _port = 1995;
+  private int _port = 1995; // Default value
 
   // Variables declaration - do not modify//GEN-BEGIN:variables
   private javax.swing.JButton clearScreenBtn;
