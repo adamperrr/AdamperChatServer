@@ -44,6 +44,17 @@ public class ComingClientsMsgRunnable implements Runnable {
               _mainFrame.sendToOneUser(outMsg.getTo(), outMsg.getFrom(), _writer, outMsg.getMessage());
             }
             break;
+          case Login:
+            if(_mainFrame.userAlreadyExists(receivedMsg.getFrom())) {
+              outMsg = new Message(MsgType.Disconnect, "ADMINISTRATOR", receivedMsg.getFrom(), "Taka nazwa użytkownika już istnieje");
+            } else {
+              outMsg = new Message(MsgType.Connect, "ADMINISTRATOR", receivedMsg.getFrom(), "Zalogowano");
+            }
+            
+            _writer.println(outMsg.getMessage());
+            _mainFrame.appendMsg("Wysłano: " + outMsg.getMessage());
+            _writer.flush();
+            break;
           case Connect:
             outMsg = new Message(MsgType.Chat, receivedMsg.getFrom(), receivedMsg.getContent());
             _mainFrame.addUser(receivedMsg.getFrom(), _writer);

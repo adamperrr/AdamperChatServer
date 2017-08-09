@@ -186,6 +186,13 @@ public class AdamperServer extends javax.swing.JFrame {
     }
   }
   
+  public boolean userAlreadyExists(String username) {
+    //return _usersMap.containsKey(username.trim());
+    PrintWriter writerTo = null;
+    writerTo = _usersMap.get(username);
+    return writerTo != null;
+  }
+  
   private void loadProperties() {
     Properties prop = new Properties();
     InputStream input = null;
