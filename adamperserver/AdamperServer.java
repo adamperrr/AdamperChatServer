@@ -45,6 +45,7 @@ public class AdamperServer extends javax.swing.JFrame {
 
   public AdamperServer() {
     initComponents();
+    setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/adamperserver/icon.png")));
     
     loadProperties();
 
