@@ -11,7 +11,7 @@ public class ComingClientsMsgRunnable implements Runnable {
   public ComingClientsMsgRunnable(Socket clientSocket, PrintWriter writer, AdamperServer frame) {
     _mainFrame = frame;
     _writer = writer;
-    
+
     try {
       _socket = clientSocket;
       InputStreamReader inReader = new InputStreamReader(_socket.getInputStream());
@@ -27,16 +27,23 @@ public class ComingClientsMsgRunnable implements Runnable {
     String stream;
 
     try {
-      while ((stream = _reader.readLine()) != null) {
+      while ((stream = _reader.readLine()) != null && _mainFrame.getServerStarted() ) {
 
         _mainFrame.appendMsg("Otrzymano: " + stream);
         Message receivedMsg = new Message(stream);
         Message outMsg = null;
         // Server sends messages with date and time receiving a message, NOT date of sending by client.
-
+        
+        if (Thread.interrupted() || !_mainFrame.getServerStarted()) {
+          _writer.close();
+          _reader.close();         
+          _socket.close();
+          break;
+        }
+        
         switch (receivedMsg.getType()) {
           case Chat:
-            if(receivedMsg.getTo().equals("all")) {
+            if (receivedMsg.getTo().equals("all")) {
               outMsg = new Message(MsgType.Chat, receivedMsg.getFrom(), receivedMsg.getContent());
               _mainFrame.sendToAllUsers(outMsg.getMessage());
             } else {
@@ -45,12 +52,12 @@ public class ComingClientsMsgRunnable implements Runnable {
             }
             break;
           case Login:
-            if(_mainFrame.userAlreadyExists(receivedMsg.getFrom())) {
+            if (_mainFrame.userAlreadyExists(receivedMsg.getFrom())) {
               outMsg = new Message(MsgType.Disconnect, "ADMINISTRATOR", receivedMsg.getFrom(), "Taka nazwa użytkownika już istnieje");
             } else {
               outMsg = new Message(MsgType.Connect, "ADMINISTRATOR", receivedMsg.getFrom(), "Zalogowano");
             }
-            
+
             _writer.println(outMsg.getMessage());
             _mainFrame.appendMsg("Wysłano: " + outMsg.getMessage());
             _writer.flush();
@@ -70,7 +77,11 @@ public class ComingClientsMsgRunnable implements Runnable {
             break;
         }
       }
-    } catch(java.net.SocketException e) {
+      
+      _writer.close();
+      _reader.close();         
+      _socket.close();      
+    } catch (java.net.SocketException e) {
       // Thrown after every user disconnection
     } catch (Exception e) {
       _mainFrame.appendError("Comming... - run: " + e.toString());

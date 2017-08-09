@@ -18,18 +18,27 @@ public class ServerRunnable implements Runnable {
   public void run() {
     _mainFrame.initialiseUsersMap();
 
-    try{
-      ServerSocket serverSock = new ServerSocket(_port);
+    try {
+      ServerSocket serverSocket = new ServerSocket(_port);
 
-      while(true) {
-        Socket clientSock = serverSock.accept();
+      while (true && _mainFrame.getServerStarted()) {
+        Socket clientSock = serverSocket.accept();
+        if (Thread.interrupted() || !_mainFrame.getServerStarted()) {
+          serverSocket.close();
+          break;
+        }
         PrintWriter writer = new PrintWriter(clientSock.getOutputStream());
 
         Thread listener = new Thread(new ComingClientsMsgRunnable(clientSock, writer, _mainFrame));
+        listener.setName("ComingClientsMsgRunnable");
         listener.start();
         _mainFrame.appendMsg("Uzyskano połaczenie...");
       }
+
+      serverSocket.close();
+      
     } catch (Exception e) {
+      _mainFrame.appendError(e.toString());
       _mainFrame.appendError("Błąd podczas zestawiania połączenia...");
     }
   }
