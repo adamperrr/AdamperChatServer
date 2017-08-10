@@ -198,6 +198,38 @@ public class AdamperServer extends javax.swing.JFrame {
     return _serverStarted;
   }
   
+  private void stopServer() {
+    _serverStarted = false;
+
+    Map<Thread, StackTraceElement[]> traces = Thread.getAllStackTraces();
+    Set<Thread> threads = traces.keySet();
+    for (Thread t : threads) {
+      if (t.getName().equals("ServerRunnable") || t.getName().equals("ComingClientsMsgRunnable")) {
+        appendMsg("\tInterrupt: " + t.getName());
+        t.interrupt();
+      }
+    }
+
+    try {
+      Message tempMessage = new Message(MsgType.Chat, "Serwer", "zostanie zatrzymany - wszyscy użytkownicy zostaną wylogowani.");
+      sendToAllUsers(tempMessage.getMessage());
+      tempMessage = new Message(MsgType.Disconnect, "Serwer", "zostanie zatrzymany - wszyscy użytkownicy zostaną wylogowani.");
+      sendToAllUsers(tempMessage.getMessage());
+    } catch (Exception e) {
+      appendError("stopServerBtnActionPerformed: " + e.toString());
+    }
+    _usersMap.clear();
+
+    stopServerBtn.setEnabled(_serverStarted);
+    displayOnlineUsersBtn.setEnabled(_serverStarted);
+    messageTextField.setEnabled(_serverStarted);
+    sendBtn.setEnabled(_serverStarted);
+    startServerBtn.setEnabled(!_serverStarted);
+
+    appendMsg("Serwer zatrzymany...");
+    mainTextArea.setText("");
+  }
+  
   private void loadProperties() {
     Properties prop = new Properties();
     InputStream input = null;
@@ -255,6 +287,11 @@ public class AdamperServer extends javax.swing.JFrame {
     setTitle("AdamperServer");
     setMinimumSize(new java.awt.Dimension(510, 360));
     setPreferredSize(new java.awt.Dimension(500, 350));
+    addWindowListener(new java.awt.event.WindowAdapter() {
+      public void windowClosing(java.awt.event.WindowEvent evt) {
+        formWindowClosing(evt);
+      }
+    });
 
     startServerBtn.setText("Uruchom serwer");
     startServerBtn.addActionListener(new java.awt.event.ActionListener() {
@@ -346,35 +383,7 @@ public class AdamperServer extends javax.swing.JFrame {
   }// </editor-fold>//GEN-END:initComponents
 
   private void stopServerBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_stopServerBtnActionPerformed
-    _serverStarted = false;
-    
-    Map<Thread, StackTraceElement[]> traces = Thread.getAllStackTraces();
-    Set<Thread> threads = traces.keySet();
-    for (Thread t : threads) {
-      if(t.getName().equals("ServerRunnable") || t.getName().equals("ComingClientsMsgRunnable")) {
-        appendMsg("\tInterrupt: " + t.getName() );
-        t.interrupt();
-      }
-    }
-    
-    try {
-      Message tempMessage = new Message(MsgType.Chat, "Serwer", "zostanie zatrzymany - wszyscy użytkownicy zostaną wylogowani.");
-      sendToAllUsers(tempMessage.getMessage());
-      tempMessage = new Message(MsgType.Disconnect, "Serwer", "zostanie zatrzymany - wszyscy użytkownicy zostaną wylogowani.");
-      sendToAllUsers(tempMessage.getMessage());
-    } catch (Exception e) {
-      appendError("stopServerBtnActionPerformed: " + e.toString());
-    }
-    _usersMap.clear();
-
-    stopServerBtn.setEnabled(_serverStarted);
-    displayOnlineUsersBtn.setEnabled(_serverStarted);
-    messageTextField.setEnabled(_serverStarted);
-    sendBtn.setEnabled(_serverStarted);
-    startServerBtn.setEnabled(!_serverStarted);
-
-    appendMsg("Serwer zatrzymany...");
-    mainTextArea.setText("");
+    stopServer();
   }//GEN-LAST:event_stopServerBtnActionPerformed
 
   private void clearScreenBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clearScreenBtnActionPerformed
@@ -428,6 +437,10 @@ public class AdamperServer extends javax.swing.JFrame {
     messageTextField.setText("");
     messageTextField.requestFocus();
   }//GEN-LAST:event_sendBtnActionPerformed
+
+  private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+    stopServer();
+  }//GEN-LAST:event_formWindowClosing
 
   Map<String, PrintWriter> _usersMap;
   
