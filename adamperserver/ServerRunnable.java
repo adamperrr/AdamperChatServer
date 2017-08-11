@@ -28,8 +28,7 @@ public class ServerRunnable implements Runnable {
 
         PrintWriter writer = new PrintWriter(clientSock.getOutputStream());
 
-        Thread listener = new Thread(new ComingClientsMsgRunnable(clientSock, writer, _mainFrame));
-        listener.setName("ComingClientsMsgRunnable");
+        Thread listener = new Thread(new ComingClientRunnable(clientSock, writer, _mainFrame));
         listener.start();
         _mainFrame.appendMsg("Uzyskano połaczenie...");
       }

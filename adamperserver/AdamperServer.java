@@ -46,9 +46,7 @@ public class AdamperServer extends javax.swing.JFrame {
   public AdamperServer() {
     initComponents();
     setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/adamperserver/icon.png")));
-
     loadProperties();
-    _serverStarted = false;
     setButtons();
   }
 
@@ -197,15 +195,6 @@ public class AdamperServer extends javax.swing.JFrame {
     return _serverStarted;
   }
 
-  private void setButtons() {
-    stopServerBtn.setEnabled(_serverStarted);
-    displayOnlineUsersBtn.setEnabled(_serverStarted);
-    messageTextField.setEnabled(_serverStarted);
-    sendBtn.setEnabled(_serverStarted);
-
-    startServerBtn.setEnabled(!_serverStarted);
-  }
-
   private void startServer() {
     if (_serverStarted) {
       return;
@@ -236,7 +225,7 @@ public class AdamperServer extends javax.swing.JFrame {
     } catch (Exception e) {
       appendError("stopServerBtnActionPerformed: " + e.toString());
     }
-    
+
     _serverThread.stop();
     _serverStarted = false;
     _usersMap.clear();
@@ -306,6 +295,15 @@ public class AdamperServer extends javax.swing.JFrame {
         }
       }
     }
+  }
+
+  private void setButtons() {
+    stopServerBtn.setEnabled(_serverStarted);
+    displayOnlineUsersBtn.setEnabled(_serverStarted);
+    messageTextField.setEnabled(_serverStarted);
+    sendBtn.setEnabled(_serverStarted);
+
+    startServerBtn.setEnabled(!_serverStarted);
   }
 
   private void clearScreen() {
@@ -469,7 +467,7 @@ public class AdamperServer extends javax.swing.JFrame {
   private Map<String, PrintWriter> _usersMap;
   private boolean _serverStarted = false;
   private int _port = 1995; // Default value - loaded from properties
-  
+
   private ServerRunnable _serverThread = null;
 
   // Variables declaration - do not modify//GEN-BEGIN:variables
