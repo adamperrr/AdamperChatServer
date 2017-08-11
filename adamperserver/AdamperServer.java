@@ -6,6 +6,11 @@ import java.net.*;
 
 import javax.swing.text.*;
 import java.awt.*;
+import java.security.*;
+import java.sql.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.security.SecureRandom;
 
 import msg.*;
 
@@ -46,8 +51,14 @@ public class AdamperServer extends javax.swing.JFrame {
   public AdamperServer() {
     initComponents();
     setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/adamperserver/icon.png")));
-    
+
     loadProperties();
+//    printAllUsersFromDB();
+//    createNewUser("AdamP1", "passwordqwerty123");
+//    createNewUser("AdamP2", "alabala");
+//    createNewUserInDB("AdamP3", "hello321");
+    getUserFromDBbyUsername("AdamP1");
+    //printAllUsersFromDB();    
 
     _serverStarted = false;
     stopServerBtn.setEnabled(_serverStarted);
@@ -67,22 +78,22 @@ public class AdamperServer extends javax.swing.JFrame {
       appendError("appendMsg: " + e.toString());
     }
   }
-  
+
   public void appendError(String inputText) {
     StyledDocument doc = mainTextArea.getStyledDocument();
     inputText = inputText.trim() + "\n";
-    
+
     SimpleAttributeSet keyWord = new SimpleAttributeSet();
     StyleConstants.setForeground(keyWord, Color.RED);
     StyleConstants.setBold(keyWord, true);
-    
+
     try {
       doc.insertString(doc.getLength(), inputText, keyWord);
       scroolDown();
     } catch (Exception e) {
       appendMsg("appendError: " + e.toString());
     }
-  }  
+  }
 
   public void sendToAllUsers(String messageText) {
     for (Map.Entry<String, PrintWriter> entry : _usersMap.entrySet()) {
@@ -101,7 +112,7 @@ public class AdamperServer extends javax.swing.JFrame {
   public void sendToOneUser(String to, String from, PrintWriter writerFrom, String messageText) {
     PrintWriter writerTo = _usersMap.get(to);
 
-    if (writerTo != null) {      
+    if (writerTo != null) {
       try {
         writerTo.println(messageText);
         writerFrom.println(messageText);
@@ -114,13 +125,13 @@ public class AdamperServer extends javax.swing.JFrame {
     } else {
       writerFrom.println(messageText);
       writerFrom.flush();
-    } 
+    }
   }
- 
+
   public void sendToOneUserFromAdmin(String to, String messageText) {
     PrintWriter writerTo = _usersMap.get(to);
 
-    if (writerTo != null) {      
+    if (writerTo != null) {
       try {
         writerTo.println(messageText);
         appendMsg("Wysłano od: ADMINISTRATOR do " + to + ": " + messageText);
@@ -130,9 +141,9 @@ public class AdamperServer extends javax.swing.JFrame {
       }
     } else {
       appendError("Błąd wiadomości do użytkownika: " + to + "...");
-    } 
+    }
   }
-  
+
   public void initialiseUsersMap() {
     _usersMap = Collections.synchronizedMap(new HashMap());
   }
@@ -145,7 +156,7 @@ public class AdamperServer extends javax.swing.JFrame {
         Message tempMessage1 = new Message(MsgType.Connect, entry.getKey(), "FromServerConnectMsg");
         sendToAllUsers(tempMessage1.getMessage());
       }
-      
+
       Message tempMessage2 = new Message(MsgType.Done, "Serwer", "DoneMsg");
       sendToAllUsers(tempMessage2.getMessage());
 
@@ -162,42 +173,42 @@ public class AdamperServer extends javax.swing.JFrame {
         Message message1 = new Message(MsgType.Connect, entry.getKey(), "FromServerConnectMsg");
         sendToAllUsers(message1.getMessage());
       }
-      
+
       Message tempMessage2 = new Message(MsgType.Done, "Serwer", "DoneMsg");
       sendToAllUsers(tempMessage2.getMessage());
-      
+
     } catch (Exception e) {
       appendError("removeUser: " + e.toString());
     }
   }
-  
+
   public synchronized void removeUserByPrintWriter(PrintWriter writer) {
     String searchedKey = "";
     boolean found = false;
     for (Map.Entry<String, PrintWriter> entry : _usersMap.entrySet()) {
-      if(entry.getValue() == writer) {
+      if (entry.getValue() == writer) {
         found = true;
         searchedKey = entry.getKey();
         break;
       }
     }
-    
-    if(found) {
+
+    if (found) {
       _usersMap.remove(searchedKey);
     }
   }
-  
+
   public synchronized boolean userAlreadyExists(String username) {
     //return _usersMap.containsKey(username.trim());
     PrintWriter writerTo = null;
     writerTo = _usersMap.get(username);
     return writerTo != null;
   }
-  
+
   public synchronized boolean getServerStarted() {
     return _serverStarted;
   }
-  
+
   private void stopServer() {
     _serverStarted = false;
 
@@ -229,7 +240,121 @@ public class AdamperServer extends javax.swing.JFrame {
     appendMsg("Serwer zatrzymany...");
     mainTextArea.setText("");
   }
+
+  private void createNewUserInDB(String username, String password) {
+    SecureRandom saltGen = new SecureRandom();
+    byte[] values = new byte[30];
+    saltGen.nextBytes(values);
+    String salt = values.toString();
+    String hash = getSHA512SecurePassword(password, salt);
+    addUserToDB(username, hash, salt);
+  } 
   
+  private void addUserToDB(String username, String password, String passwordSalt) {
+    Connection c = null;
+    Statement stmt = null;
+    URL url = null;
+    try {
+      Class.forName("org.sqlite.JDBC");
+      url = getClass().getResource("/adamperserver/" + _dbName + ".db");
+      c = DriverManager.getConnection("jdbc:sqlite:" + url.toString());
+      c.setAutoCommit(false);
+
+      stmt = c.createStatement();
+      String sql = "INSERT INTO users (username, password, password_salt) "
+              + "VALUES ('"
+              + username + "', '"
+              + password + "', '"
+              + passwordSalt + "' );";
+
+      stmt.executeUpdate(sql);
+      stmt.close();
+      c.commit();
+      c.close();
+    } catch (Exception e) {
+      appendError("addUserToDB: " + e.getMessage());
+    }
+    appendMsg("Użytkownik dodany: username = " + username);
+  }
+
+  private void getUserFromDBbyUsername(String inUsername) {
+    Connection c = null;
+    Statement stmt = null;
+    URL url = null;
+    try {
+      Class.forName("org.sqlite.JDBC");
+      url = getClass().getResource("/adamperserver/" + _dbName + ".db");
+      c = DriverManager.getConnection("jdbc:sqlite:" + url.toString());
+      c.setAutoCommit(false);
+
+      stmt = c.createStatement();
+      ResultSet rs = stmt.executeQuery("SELECT * FROM users WHERE username='" + inUsername + "';");
+      
+      while (rs.next()) {
+        int id = rs.getInt("id");
+        String username = rs.getString("username");
+        String password = rs.getString("password");
+        String passwordSalt = rs.getString("password_salt");
+
+        appendMsg(id + " " + username + " " + password + " " + passwordSalt);
+      }
+      rs.close();
+      stmt.close();
+      c.close();
+    } catch (Exception e) {
+      appendError("loadUserFromDBbyUsername: " + e.getMessage());
+    }
+  }  
+  
+  private void printAllUsersFromDB() {
+    Connection c = null;
+    Statement stmt = null;
+    URL url = null;
+    try {
+      Class.forName("org.sqlite.JDBC");
+      url = getClass().getResource("/adamperserver/" + _dbName + ".db");
+      c = DriverManager.getConnection("jdbc:sqlite:" + url.toString());
+      c.setAutoCommit(false);
+
+      stmt = c.createStatement();
+      ResultSet rs = stmt.executeQuery("SELECT * FROM users;");
+      
+      appendMsg("Użytkownicy w bazie:");
+      while (rs.next()) {
+        int id = rs.getInt("id");
+        String username = rs.getString("username");
+        String password = rs.getString("password");
+        String passwordSalt = rs.getString("password_salt");
+
+        appendMsg(id + " " + username + " " + password + " " + passwordSalt);
+      }
+      rs.close();
+      stmt.close();
+      c.close();
+    } catch (Exception e) {
+      appendError("loadUserFromDBbyUsername: " + e.getMessage());
+    }
+  }
+
+  public String getSHA512SecurePassword(String passwordToHash, String salt) {
+    String generatedPassword = null;
+    try {
+      MessageDigest md = MessageDigest.getInstance("SHA-512");
+      md.update(salt.getBytes("UTF-8"));
+      byte[] bytes = md.digest(passwordToHash.getBytes("UTF-8"));
+      StringBuilder sb = new StringBuilder();
+      for (int i = 0; i < bytes.length; i++) {
+        sb.append(Integer.toString((bytes[i] & 0xff) + 0x100, 16).substring(1));
+      }
+      generatedPassword = sb.toString();
+    } catch (NoSuchAlgorithmException e) {
+      appendError("getSHA512SecurePassword: " + e.getMessage());
+    } catch (UnsupportedEncodingException e) {
+      appendError("getSHA512SecurePassword: " + e.getMessage());
+    }
+    return generatedPassword;
+  }
+
   private void loadProperties() {
     Properties prop = new Properties();
     InputStream input = null;
@@ -255,11 +380,11 @@ public class AdamperServer extends javax.swing.JFrame {
       }
     }
   }
-  
+
   private void scroolDown() {
     mainTextArea.setCaretPosition(mainTextArea.getDocument().getLength());
-  }  
-  
+  }
+
   /**
    * This method is called from within the constructor to initialize the form.
    * WARNING: Do NOT modify this code. The content of this method is always
@@ -422,7 +547,7 @@ public class AdamperServer extends javax.swing.JFrame {
     } else {
       try {
         Message tempMessage = new Message(MsgType.Chat, "ADMINISTRATOR", messageTextField.getText());
-        if(tempMessage.getTo().equals("all")) {
+        if (tempMessage.getTo().equals("all")) {
           sendToAllUsers(tempMessage.getMessage());
         } else {
           sendToOneUserFromAdmin(tempMessage.getTo(), tempMessage.getMessage());
@@ -439,13 +564,17 @@ public class AdamperServer extends javax.swing.JFrame {
   }//GEN-LAST:event_sendBtnActionPerformed
 
   private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
-    stopServer();
+    if (_serverStarted) {
+      stopServer();
+    }
   }//GEN-LAST:event_formWindowClosing
 
   Map<String, PrintWriter> _usersMap;
-  
+
   private boolean _serverStarted = false;
   private int _port = 1995; // Default value
+
+  private String _dbName = "portable_database";
 
   // Variables declaration - do not modify//GEN-BEGIN:variables
   private javax.swing.JButton clearScreenBtn;
