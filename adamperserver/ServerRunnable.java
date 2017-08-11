@@ -21,7 +21,7 @@ public class ServerRunnable implements Runnable {
     try {
       ServerSocket serverSocket = new ServerSocket(_port);
 
-      while (true && _mainFrame.getServerStarted()) {
+      while (_mainFrame.getServerStarted()) {
         Socket clientSock = serverSocket.accept();
         if (Thread.interrupted() || !_mainFrame.getServerStarted()) {
           serverSocket.close();

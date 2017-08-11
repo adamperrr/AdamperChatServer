@@ -48,13 +48,8 @@ public class AdamperServer extends javax.swing.JFrame {
     setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/adamperserver/icon.png")));
 
     loadProperties();
-
     _serverStarted = false;
-    stopServerBtn.setEnabled(_serverStarted);
-    displayOnlineUsersBtn.setEnabled(_serverStarted);
-    messageTextField.setEnabled(_serverStarted);
-    sendBtn.setEnabled(_serverStarted);
-    startServerBtn.setEnabled(!_serverStarted);
+    setButtons();
   }
 
   public void appendMsg(String inputText) {
@@ -72,12 +67,12 @@ public class AdamperServer extends javax.swing.JFrame {
     StyledDocument doc = mainTextArea.getStyledDocument();
     inputText = inputText.trim() + "\n";
 
-    SimpleAttributeSet keyWord = new SimpleAttributeSet();
-    StyleConstants.setForeground(keyWord, Color.RED);
-    StyleConstants.setBold(keyWord, true);
+    SimpleAttributeSet textStyles = new SimpleAttributeSet();
+    StyleConstants.setForeground(textStyles, Color.RED);
+    StyleConstants.setBold(textStyles, true);
 
     try {
-      doc.insertString(doc.getLength(), inputText, keyWord);
+      doc.insertString(doc.getLength(), inputText, textStyles);
       scroolDown();
     } catch (Exception e) {
       appendMsg("appendError: " + e.toString());
@@ -85,9 +80,10 @@ public class AdamperServer extends javax.swing.JFrame {
   }
 
   public void sendToAllUsers(String messageText) {
+    PrintWriter writer = null;
     for (Map.Entry<String, PrintWriter> entry : _usersMap.entrySet()) {
       try {
-        PrintWriter writer = (PrintWriter) entry.getValue();
+        writer = (PrintWriter) entry.getValue();
         writer.println(messageText);
         appendMsg("Wysłano: " + messageText);
         writer.flush();
@@ -108,6 +104,7 @@ public class AdamperServer extends javax.swing.JFrame {
         appendMsg("Wysłano od: " + from + " do " + to + ": " + messageText);
         writerTo.flush();
         writerFrom.flush();
+
       } catch (Exception e) {
         appendError("Błąd wiadomości do użytkownika: " + to + "...");
       }
@@ -140,14 +137,15 @@ public class AdamperServer extends javax.swing.JFrame {
   public synchronized void addUser(String name, PrintWriter writerObj) {
     _usersMap.put(name, writerObj);
 
+    Message tempMessage = null;
     try {
       for (Map.Entry<String, PrintWriter> entry : _usersMap.entrySet()) {
-        Message tempMessage1 = new Message(MsgType.Connect, entry.getKey(), "FromServerConnectMsg");
-        sendToAllUsers(tempMessage1.getMessage());
+        tempMessage = new Message(MsgType.Connect, entry.getKey(), "FromServerConnectMsg");
+        sendToAllUsers(tempMessage.getMessage());
       }
 
-      Message tempMessage2 = new Message(MsgType.Done, "Serwer", "DoneMsg");
-      sendToAllUsers(tempMessage2.getMessage());
+      tempMessage = new Message(MsgType.Done, "Serwer", "DoneMsg");
+      sendToAllUsers(tempMessage.getMessage());
 
     } catch (Exception e) {
       appendError("addUser: " + e.toString());
@@ -157,14 +155,15 @@ public class AdamperServer extends javax.swing.JFrame {
   public synchronized void removeUser(String username) {
     _usersMap.remove(username);
 
+    Message tempMessage = null;
     try {
       for (Map.Entry<String, PrintWriter> entry : _usersMap.entrySet()) {
-        Message message1 = new Message(MsgType.Connect, entry.getKey(), "FromServerConnectMsg");
-        sendToAllUsers(message1.getMessage());
+        tempMessage = new Message(MsgType.Connect, entry.getKey(), "FromServerConnectMsg");
+        sendToAllUsers(tempMessage.getMessage());
       }
 
-      Message tempMessage2 = new Message(MsgType.Done, "Serwer", "DoneMsg");
-      sendToAllUsers(tempMessage2.getMessage());
+      tempMessage = new Message(MsgType.Done, "Serwer", "DoneMsg");
+      sendToAllUsers(tempMessage.getMessage());
 
     } catch (Exception e) {
       appendError("removeUser: " + e.toString());
@@ -174,6 +173,7 @@ public class AdamperServer extends javax.swing.JFrame {
   public synchronized void removeUserByPrintWriter(PrintWriter writer) {
     String searchedKey = "";
     boolean found = false;
+
     for (Map.Entry<String, PrintWriter> entry : _usersMap.entrySet()) {
       if (entry.getValue() == writer) {
         found = true;
@@ -188,7 +188,6 @@ public class AdamperServer extends javax.swing.JFrame {
   }
 
   public synchronized boolean userAlreadyExists(String username) {
-    //return _usersMap.containsKey(username.trim());
     PrintWriter writerTo = null;
     writerTo = _usersMap.get(username);
     return writerTo != null;
@@ -198,7 +197,35 @@ public class AdamperServer extends javax.swing.JFrame {
     return _serverStarted;
   }
 
+  private void setButtons() {
+    stopServerBtn.setEnabled(_serverStarted);
+    displayOnlineUsersBtn.setEnabled(_serverStarted);
+    messageTextField.setEnabled(_serverStarted);
+    sendBtn.setEnabled(_serverStarted);
+
+    startServerBtn.setEnabled(!_serverStarted);
+  }
+
+  private void startServer() {
+    if (_serverStarted) {
+      return;
+    }
+
+    ServerRunnable tempServerStart = new ServerRunnable(this, _port);
+    Thread starter = new Thread(tempServerStart);
+    starter.setName("ServerRunnable");
+    starter.start();
+
+    appendMsg("Serwer włączony...");
+    _serverStarted = true;
+    setButtons();
+  }
+
   private void stopServer() {
+    if (!_serverStarted) {
+      return;
+    }
+
     _serverStarted = false;
 
     Map<Thread, StackTraceElement[]> traces = Thread.getAllStackTraces();
@@ -213,21 +240,55 @@ public class AdamperServer extends javax.swing.JFrame {
     try {
       Message tempMessage = new Message(MsgType.Chat, "Serwer", "zostanie zatrzymany - wszyscy użytkownicy zostaną wylogowani.");
       sendToAllUsers(tempMessage.getMessage());
+
       tempMessage = new Message(MsgType.Disconnect, "Serwer", "zostanie zatrzymany - wszyscy użytkownicy zostaną wylogowani.");
       sendToAllUsers(tempMessage.getMessage());
+
     } catch (Exception e) {
       appendError("stopServerBtnActionPerformed: " + e.toString());
     }
     _usersMap.clear();
 
-    stopServerBtn.setEnabled(_serverStarted);
-    displayOnlineUsersBtn.setEnabled(_serverStarted);
-    messageTextField.setEnabled(_serverStarted);
-    sendBtn.setEnabled(_serverStarted);
-    startServerBtn.setEnabled(!_serverStarted);
+    setButtons();
 
     appendMsg("Serwer zatrzymany...");
     mainTextArea.setText("");
+  }
+
+  private void sendMsg() {
+    if (!_serverStarted) {
+      return;
+    }
+
+    if (!messageTextField.getText().equals("")) {
+      try {
+
+        Message tempMessage = new Message(MsgType.Chat, "ADMINISTRATOR", messageTextField.getText());
+
+        if (tempMessage.getTo().equals("all")) {
+          sendToAllUsers(tempMessage.getMessage());
+        } else {
+          sendToOneUserFromAdmin(tempMessage.getTo(), tempMessage.getMessage());
+        }
+
+      } catch (Exception e) {
+        appendError("sendBtnActionPerformed: " + e.toString());
+      }
+    }
+
+    clearMsgField();
+    messageTextField.requestFocus();
+  }
+
+  private void displayOnlineUsers() {
+    if (!_serverStarted) {
+      return;
+    }
+
+    appendMsg("\n Użytkownicy online :");
+    for (Map.Entry<String, PrintWriter> entry : _usersMap.entrySet()) {
+      appendMsg("\t" + entry.getKey());
+    }
   }
 
   private void loadProperties() {
@@ -254,6 +315,14 @@ public class AdamperServer extends javax.swing.JFrame {
         }
       }
     }
+  }
+
+  private void clearScreen() {
+    mainTextArea.setText("");
+  }
+
+  private void clearMsgField() {
+    messageTextField.setText("");
   }
 
   private void scroolDown() {
@@ -383,73 +452,32 @@ public class AdamperServer extends javax.swing.JFrame {
   }// </editor-fold>//GEN-END:initComponents
 
   private void stopServerBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_stopServerBtnActionPerformed
-    if (_serverStarted) {
-      stopServer();
-    }
+    stopServer();
   }//GEN-LAST:event_stopServerBtnActionPerformed
 
   private void clearScreenBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clearScreenBtnActionPerformed
-    mainTextArea.setText("");
+    clearScreen();
   }//GEN-LAST:event_clearScreenBtnActionPerformed
 
   private void displayOnlineUsersBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_displayOnlineUsersBtnActionPerformed
-    appendMsg("\n Użytkownicy online :");
-    for (Map.Entry<String, PrintWriter> entry : _usersMap.entrySet()) {
-      appendMsg("\t" + entry.getKey());
-    }
+    displayOnlineUsers();
   }//GEN-LAST:event_displayOnlineUsersBtnActionPerformed
 
   private void startServerBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startServerBtnActionPerformed
-    if (!_serverStarted) {
-      ServerRunnable tempServerStart = new ServerRunnable(this, _port);
-      Thread starter = new Thread(tempServerStart);
-      starter.setName("ServerRunnable");
-      starter.start();
-
-      appendMsg("Serwer włączony...");
-      _serverStarted = true;
-      stopServerBtn.setEnabled(_serverStarted);
-      displayOnlineUsersBtn.setEnabled(_serverStarted);
-      messageTextField.setEnabled(_serverStarted);
-      sendBtn.setEnabled(_serverStarted);
-      startServerBtn.setEnabled(!_serverStarted);
-    }
+    startServer();
   }//GEN-LAST:event_startServerBtnActionPerformed
 
   private void sendBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendBtnActionPerformed
-    String nothing = "";
-    if ((messageTextField.getText()).equals(nothing)) {
-      messageTextField.setText("");
-      messageTextField.requestFocus();
-    } else {
-      try {
-        Message tempMessage = new Message(MsgType.Chat, "ADMINISTRATOR", messageTextField.getText());
-        if (tempMessage.getTo().equals("all")) {
-          sendToAllUsers(tempMessage.getMessage());
-        } else {
-          sendToOneUserFromAdmin(tempMessage.getTo(), tempMessage.getMessage());
-        }
-      } catch (Exception e) {
-        appendError("sendBtnActionPerformed: " + e.toString());
-      }
-      messageTextField.setText("");
-      messageTextField.requestFocus();
-    }
-
-    messageTextField.setText("");
-    messageTextField.requestFocus();
+    sendMsg();
   }//GEN-LAST:event_sendBtnActionPerformed
 
   private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
-    if (_serverStarted) {
-      stopServer();
-    }
+    stopServer();
   }//GEN-LAST:event_formWindowClosing
 
   Map<String, PrintWriter> _usersMap;
-
   private boolean _serverStarted = false;
-  private int _port = 1995; // Default value
+  private int _port = 1995; // Default value - loaded from properties
 
   // Variables declaration - do not modify//GEN-BEGIN:variables
   private javax.swing.JButton clearScreenBtn;
