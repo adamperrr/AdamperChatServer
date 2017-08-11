@@ -30,11 +30,11 @@ public class ServerRunnable implements Runnable {
 
         Thread listener = new Thread(new ComingClientRunnable(clientSock, writer, _mainFrame));
         listener.start();
-        _mainFrame.appendMsg("Uzyskano połaczenie...");
+        _mainFrame.appendMsg("Uzyskano połaczenie.");
       }
     } catch (Exception e) {
       _mainFrame.appendError(e.toString());
-      _mainFrame.appendError("Błąd podczas zestawiania połączenia...");
+      _mainFrame.appendError("Błąd podczas zestawiania połączenia.");
     } finally {
       try {
         _serverSocket.close();

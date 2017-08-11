@@ -87,7 +87,7 @@ public class AdamperServer extends javax.swing.JFrame {
         writer.flush();
 
       } catch (Exception e) {
-        appendError("Błąd wiadomości do wszystkich... ");
+        appendError("Błąd wiadomości do wszystkich. ");
       }
     }
   }
@@ -104,7 +104,7 @@ public class AdamperServer extends javax.swing.JFrame {
         writerFrom.flush();
 
       } catch (Exception e) {
-        appendError("Błąd wiadomości do użytkownika: " + to + "...");
+        appendError("Błąd wiadomości do użytkownika: " + to + ".");
       }
     } else {
       writerFrom.println(messageText);
@@ -121,10 +121,10 @@ public class AdamperServer extends javax.swing.JFrame {
         appendMsg("Wysłano od: ADMINISTRATOR do " + to + ": " + messageText);
         writerTo.flush();
       } catch (Exception e) {
-        appendError("Błąd wiadomości do użytkownika: " + to + "...");
+        appendError("Błąd wiadomości do użytkownika: " + to + ".");
       }
     } else {
-      appendError("Błąd wiadomości do użytkownika: " + to + "...");
+      appendError("Błąd wiadomości do użytkownika: " + to + ".");
     }
   }
 
@@ -206,7 +206,7 @@ public class AdamperServer extends javax.swing.JFrame {
     _serverStarted = true;
     starter.start();
 
-    appendMsg("Serwer włączony...");
+    appendMsg("Serwer włączony.");
     setButtons();
   }
 
@@ -231,7 +231,7 @@ public class AdamperServer extends javax.swing.JFrame {
     _usersMap.clear();
     setButtons();
 
-    appendMsg("Serwer zatrzymany...");
+    appendMsg("Serwer zatrzymany.");
     mainTextArea.setText("");
   }
 

@@ -8,22 +8,21 @@ import msg.*;
 
 public class ComingClientRunnable implements Runnable {
 
-  public ComingClientRunnable(Socket clientSocket, PrintWriter writer, AdamperServer frame) {
+  public ComingClientRunnable(Socket socket, PrintWriter writer, AdamperServer frame) {
     _mainFrame = frame;
     _writer = writer;
 
     try {
-      _socket = clientSocket;
+      _socket = socket;
       _reader = new BufferedReader(new InputStreamReader(_socket.getInputStream()));
     } catch (Exception e) {
-      _mainFrame.appendError("Nieoczekiwany błąd...");
+      _mainFrame.appendError("Nieoczekiwany błąd.");
     }
-
   }
 
   @Override
   public void run() {
-    String line;
+    String line = null;
     try {
       while ((line = _reader.readLine()) != null && _mainFrame.getServerStarted()) {
 
@@ -45,7 +44,7 @@ public class ComingClientRunnable implements Runnable {
             disconnectMsgResp(receivedMsg, outMsg);
             break;
           default:
-            _mainFrame.appendMsg("Błąd w wiadomości...");
+            _mainFrame.appendError("Comming...: Błąd w wiadomości.");
             break;
         }
       }
@@ -53,8 +52,8 @@ public class ComingClientRunnable implements Runnable {
     } catch (java.net.SocketException e) {
       // Thrown after every user disconnection
     } catch (Exception e) {
-      _mainFrame.appendError("Comming... - run: " + e.toString());
-      _mainFrame.appendError("Utracono połączenie...");
+      _mainFrame.appendError("Comming. - run: " + e.toString());
+      _mainFrame.appendError("Utracono połączenie.");
       _mainFrame.removeUserByPrintWriter(_writer);
     } finally {
       try {
