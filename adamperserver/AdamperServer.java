@@ -265,9 +265,15 @@ public class AdamperServer extends javax.swing.JFrame {
       return;
     }
 
-    appendMsg("\n Użytkownicy online :");
-    for (Map.Entry<String, PrintWriter> entry : _usersMap.entrySet()) {
-      appendMsg("\t" + entry.getKey());
+    int usersNum = _usersMap.size();
+
+    if (usersNum > 0) {
+      appendMsg("\n Użytkownicy online :");
+      for (Map.Entry<String, PrintWriter> entry : _usersMap.entrySet()) {
+        appendMsg("\t" + entry.getKey());
+      }
+    } else {
+      appendMsg("\n Aktualnie brak użytkowników online.");
     }
   }
 
