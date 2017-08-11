@@ -17,9 +17,10 @@ public class ServerRunnable implements Runnable {
   @Override
   public void run() {
     _mainFrame.initialiseUsersMap();
-
+    ServerSocket serverSocket = null;
+    
     try {
-      ServerSocket serverSocket = new ServerSocket(_port);
+      serverSocket = new ServerSocket(_port);
 
       while (_mainFrame.getServerStarted()) {
         Socket clientSock = serverSocket.accept();

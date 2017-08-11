@@ -231,7 +231,7 @@ public class AdamperServer extends javax.swing.JFrame {
     Map<Thread, StackTraceElement[]> traces = Thread.getAllStackTraces();
     Set<Thread> threads = traces.keySet();
     for (Thread t : threads) {
-      if (t.getName().equals("ServerRunnable") || t.getName().equals("ComingClientsMsgRunnable")) {
+      if (t.getName().trim().equals("ServerRunnable") || t.getName().trim().equals("ComingClientsMsgRunnable")) {
         appendMsg("\tInterrupt: " + t.getName());
         t.interrupt();
       }
