@@ -6,8 +6,6 @@ import java.net.*;
 
 import javax.swing.text.*;
 import java.awt.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import msg.*;
 
@@ -200,7 +198,7 @@ public class AdamperServer extends javax.swing.JFrame {
   }
 
   private void setButtons() {
-    // stopServerBtn.setEnabled(_serverStarted);
+    stopServerBtn.setEnabled(_serverStarted);
     displayOnlineUsersBtn.setEnabled(_serverStarted);
     messageTextField.setEnabled(_serverStarted);
     sendBtn.setEnabled(_serverStarted);
@@ -213,13 +211,13 @@ public class AdamperServer extends javax.swing.JFrame {
       return;
     }
 
-    ServerRunnable tempServerStart = new ServerRunnable(this, _port);
-    Thread starter = new Thread(tempServerStart);
+    _serverThread = new ServerRunnable(this, _port);
+    Thread starter = new Thread(_serverThread);
     starter.setName("ServerRunnable");
+    _serverStarted = true;
     starter.start();
 
     appendMsg("Serwer włączony...");
-    _serverStarted = true;
     setButtons();
   }
 
@@ -237,22 +235,15 @@ public class AdamperServer extends javax.swing.JFrame {
 
     } catch (Exception e) {
       appendError("stopServerBtnActionPerformed: " + e.toString());
-    }    
-        
-    Map<Thread, StackTraceElement[]> traces = Thread.getAllStackTraces();
-    Set<Thread> threads = traces.keySet();
-    for (Thread t : threads) {
-      if (t.getName().trim().equals("ServerRunnable") || t.getName().trim().equals("ComingClientsMsgRunnable")) {
-        appendMsg("\tInterrupt: " + t.getName());
-        t.interrupt();
-      }
     }
-
-    _usersMap.clear();
+    
+    _serverThread.stop();
     _serverStarted = false;
+    _usersMap.clear();
     setButtons();
 
     appendMsg("Serwer zatrzymany...");
+    mainTextArea.setText("");
   }
 
   private void sendMsg() {
@@ -341,6 +332,7 @@ public class AdamperServer extends javax.swing.JFrame {
     jScrollPane2 = new javax.swing.JScrollPane();
     jEditorPane1 = new javax.swing.JEditorPane();
     startServerBtn = new javax.swing.JButton();
+    stopServerBtn = new javax.swing.JButton();
     clearScreenBtn = new javax.swing.JButton();
     displayOnlineUsersBtn = new javax.swing.JButton();
     messageTextField = new javax.swing.JTextField();
@@ -365,6 +357,13 @@ public class AdamperServer extends javax.swing.JFrame {
     startServerBtn.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
         startServerBtnActionPerformed(evt);
+      }
+    });
+
+    stopServerBtn.setText("Zatrzymaj serwer");
+    stopServerBtn.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(java.awt.event.ActionEvent evt) {
+        stopServerBtnActionPerformed(evt);
       }
     });
 
@@ -407,21 +406,23 @@ public class AdamperServer extends javax.swing.JFrame {
             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
             .addComponent(sendBtn))
           .addGroup(layout.createSequentialGroup()
-            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-              .addComponent(startServerBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 235, javax.swing.GroupLayout.PREFERRED_SIZE)
-              .addGroup(layout.createSequentialGroup()
-                .addComponent(clearScreenBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 235, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(displayOnlineUsersBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 235, javax.swing.GroupLayout.PREFERRED_SIZE))
-              .addComponent(messageLabel))
-            .addGap(0, 0, Short.MAX_VALUE)))
+            .addComponent(startServerBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 235, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+            .addComponent(stopServerBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 235, javax.swing.GroupLayout.PREFERRED_SIZE))
+          .addGroup(layout.createSequentialGroup()
+            .addComponent(clearScreenBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 235, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+            .addComponent(displayOnlineUsersBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 235, javax.swing.GroupLayout.PREFERRED_SIZE))
+          .addComponent(messageLabel))
         .addContainerGap())
     );
     layout.setVerticalGroup(
       layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
       .addGroup(layout.createSequentialGroup()
         .addContainerGap()
-        .addComponent(startServerBtn)
+        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+          .addComponent(startServerBtn)
+          .addComponent(stopServerBtn))
         .addGap(10, 10, 10)
         .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 197, Short.MAX_VALUE)
         .addGap(10, 10, 10)
@@ -440,6 +441,10 @@ public class AdamperServer extends javax.swing.JFrame {
     pack();
     setLocationRelativeTo(null);
   }// </editor-fold>//GEN-END:initComponents
+
+  private void stopServerBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_stopServerBtnActionPerformed
+    stopServer();
+  }//GEN-LAST:event_stopServerBtnActionPerformed
 
   private void clearScreenBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clearScreenBtnActionPerformed
     clearScreen();
@@ -461,9 +466,11 @@ public class AdamperServer extends javax.swing.JFrame {
     stopServer();
   }//GEN-LAST:event_formWindowClosing
 
-  Map<String, PrintWriter> _usersMap;
+  private Map<String, PrintWriter> _usersMap;
   private boolean _serverStarted = false;
   private int _port = 1995; // Default value - loaded from properties
+  
+  private ServerRunnable _serverThread = null;
 
   // Variables declaration - do not modify//GEN-BEGIN:variables
   private javax.swing.JButton clearScreenBtn;
@@ -476,5 +483,6 @@ public class AdamperServer extends javax.swing.JFrame {
   private javax.swing.JTextField messageTextField;
   private javax.swing.JButton sendBtn;
   private javax.swing.JButton startServerBtn;
+  private javax.swing.JButton stopServerBtn;
   // End of variables declaration//GEN-END:variables
 }

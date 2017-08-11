@@ -3,6 +3,8 @@ package adamperserver;
 import java.util.*;
 import java.io.*;
 import java.net.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 
 import msg.*;
@@ -17,17 +19,13 @@ public class ServerRunnable implements Runnable {
   @Override
   public void run() {
     _mainFrame.initialiseUsersMap();
-    ServerSocket serverSocket = null;
-    
+
     try {
-      serverSocket = new ServerSocket(_port);
+      _serverSocket = new ServerSocket(_port);
 
       while (_mainFrame.getServerStarted()) {
-        Socket clientSock = serverSocket.accept();
-        if (Thread.interrupted() || !_mainFrame.getServerStarted()) {
-          serverSocket.close();
-          break;
-        }
+        Socket clientSock = _serverSocket.accept();
+
         PrintWriter writer = new PrintWriter(clientSock.getOutputStream());
 
         Thread listener = new Thread(new ComingClientsMsgRunnable(clientSock, writer, _mainFrame));
@@ -35,15 +33,27 @@ public class ServerRunnable implements Runnable {
         listener.start();
         _mainFrame.appendMsg("Uzyskano połaczenie...");
       }
-
-      serverSocket.close();
-      
     } catch (Exception e) {
       _mainFrame.appendError(e.toString());
       _mainFrame.appendError("Błąd podczas zestawiania połączenia...");
+    } finally {
+      try {
+        _serverSocket.close();
+      } catch (IOException e) {
+        _mainFrame.appendError(e.toString());
+      }
     }
   }
+  
+    public void stop() {
+      try {
+        _serverSocket.close();
+      } catch (IOException e) {
+        _mainFrame.appendError(e.toString());
+      }
+    }
 
   private AdamperServer _mainFrame;
   private int _port;
+  ServerSocket _serverSocket = null;
 }
