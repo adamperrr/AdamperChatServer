@@ -46,7 +46,7 @@ public class AdamperServer extends javax.swing.JFrame {
   public AdamperServer() {
     initComponents();
     setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/adamperserver/icon.png")));
-    
+
     loadProperties();
 
     _serverStarted = false;
@@ -67,22 +67,22 @@ public class AdamperServer extends javax.swing.JFrame {
       appendError("appendMsg: " + e.toString());
     }
   }
-  
+
   public void appendError(String inputText) {
     StyledDocument doc = mainTextArea.getStyledDocument();
     inputText = inputText.trim() + "\n";
-    
+
     SimpleAttributeSet keyWord = new SimpleAttributeSet();
     StyleConstants.setForeground(keyWord, Color.RED);
     StyleConstants.setBold(keyWord, true);
-    
+
     try {
       doc.insertString(doc.getLength(), inputText, keyWord);
       scroolDown();
     } catch (Exception e) {
       appendMsg("appendError: " + e.toString());
     }
-  }  
+  }
 
   public void sendToAllUsers(String messageText) {
     for (Map.Entry<String, PrintWriter> entry : _usersMap.entrySet()) {
@@ -101,7 +101,7 @@ public class AdamperServer extends javax.swing.JFrame {
   public void sendToOneUser(String to, String from, PrintWriter writerFrom, String messageText) {
     PrintWriter writerTo = _usersMap.get(to);
 
-    if (writerTo != null) {      
+    if (writerTo != null) {
       try {
         writerTo.println(messageText);
         writerFrom.println(messageText);
@@ -114,13 +114,13 @@ public class AdamperServer extends javax.swing.JFrame {
     } else {
       writerFrom.println(messageText);
       writerFrom.flush();
-    } 
+    }
   }
- 
+
   public void sendToOneUserFromAdmin(String to, String messageText) {
     PrintWriter writerTo = _usersMap.get(to);
 
-    if (writerTo != null) {      
+    if (writerTo != null) {
       try {
         writerTo.println(messageText);
         appendMsg("Wysłano od: ADMINISTRATOR do " + to + ": " + messageText);
@@ -130,9 +130,9 @@ public class AdamperServer extends javax.swing.JFrame {
       }
     } else {
       appendError("Błąd wiadomości do użytkownika: " + to + "...");
-    } 
+    }
   }
-  
+
   public void initialiseUsersMap() {
     _usersMap = Collections.synchronizedMap(new HashMap());
   }
@@ -145,7 +145,7 @@ public class AdamperServer extends javax.swing.JFrame {
         Message tempMessage1 = new Message(MsgType.Connect, entry.getKey(), "FromServerConnectMsg");
         sendToAllUsers(tempMessage1.getMessage());
       }
-      
+
       Message tempMessage2 = new Message(MsgType.Done, "Serwer", "DoneMsg");
       sendToAllUsers(tempMessage2.getMessage());
 
@@ -162,42 +162,42 @@ public class AdamperServer extends javax.swing.JFrame {
         Message message1 = new Message(MsgType.Connect, entry.getKey(), "FromServerConnectMsg");
         sendToAllUsers(message1.getMessage());
       }
-      
+
       Message tempMessage2 = new Message(MsgType.Done, "Serwer", "DoneMsg");
       sendToAllUsers(tempMessage2.getMessage());
-      
+
     } catch (Exception e) {
       appendError("removeUser: " + e.toString());
     }
   }
-  
+
   public synchronized void removeUserByPrintWriter(PrintWriter writer) {
     String searchedKey = "";
     boolean found = false;
     for (Map.Entry<String, PrintWriter> entry : _usersMap.entrySet()) {
-      if(entry.getValue() == writer) {
+      if (entry.getValue() == writer) {
         found = true;
         searchedKey = entry.getKey();
         break;
       }
     }
-    
-    if(found) {
+
+    if (found) {
       _usersMap.remove(searchedKey);
     }
   }
-  
+
   public synchronized boolean userAlreadyExists(String username) {
     //return _usersMap.containsKey(username.trim());
     PrintWriter writerTo = null;
     writerTo = _usersMap.get(username);
     return writerTo != null;
   }
-  
+
   public synchronized boolean getServerStarted() {
     return _serverStarted;
   }
-  
+
   private void stopServer() {
     _serverStarted = false;
 
@@ -229,7 +229,7 @@ public class AdamperServer extends javax.swing.JFrame {
     appendMsg("Serwer zatrzymany...");
     mainTextArea.setText("");
   }
-  
+
   private void loadProperties() {
     Properties prop = new Properties();
     InputStream input = null;
@@ -255,11 +255,11 @@ public class AdamperServer extends javax.swing.JFrame {
       }
     }
   }
-  
+
   private void scroolDown() {
     mainTextArea.setCaretPosition(mainTextArea.getDocument().getLength());
-  }  
-  
+  }
+
   /**
    * This method is called from within the constructor to initialize the form.
    * WARNING: Do NOT modify this code. The content of this method is always
@@ -383,7 +383,9 @@ public class AdamperServer extends javax.swing.JFrame {
   }// </editor-fold>//GEN-END:initComponents
 
   private void stopServerBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_stopServerBtnActionPerformed
-    stopServer();
+    if (_serverStarted) {
+      stopServer();
+    }
   }//GEN-LAST:event_stopServerBtnActionPerformed
 
   private void clearScreenBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clearScreenBtnActionPerformed
@@ -422,7 +424,7 @@ public class AdamperServer extends javax.swing.JFrame {
     } else {
       try {
         Message tempMessage = new Message(MsgType.Chat, "ADMINISTRATOR", messageTextField.getText());
-        if(tempMessage.getTo().equals("all")) {
+        if (tempMessage.getTo().equals("all")) {
           sendToAllUsers(tempMessage.getMessage());
         } else {
           sendToOneUserFromAdmin(tempMessage.getTo(), tempMessage.getMessage());
@@ -439,11 +441,13 @@ public class AdamperServer extends javax.swing.JFrame {
   }//GEN-LAST:event_sendBtnActionPerformed
 
   private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
-    stopServer();
+    if (_serverStarted) {
+      stopServer();
+    }
   }//GEN-LAST:event_formWindowClosing
 
   Map<String, PrintWriter> _usersMap;
-  
+
   private boolean _serverStarted = false;
   private int _port = 1995; // Default value
 
