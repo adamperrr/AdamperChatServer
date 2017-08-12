@@ -100,9 +100,9 @@ public class ComingClientRunnable implements Runnable {
     _mainFrame.removeUser(receivedMsg.getFrom());
   }
 
-  private AdamperServer _mainFrame;
+  private AdamperServer _mainFrame = null;
 
-  private Socket _socket;
-  private PrintWriter _writer;
-  private BufferedReader _reader;
+  private Socket _socket = null;
+  private PrintWriter _writer = null;
+  private BufferedReader _reader = null;
 }

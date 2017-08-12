@@ -470,7 +470,7 @@ public class AdamperServer extends javax.swing.JFrame {
     stopServer();
   }//GEN-LAST:event_formWindowClosing
 
-  private Map<String, PrintWriter> _usersMap;
+  private Map<String, PrintWriter> _usersMap = null;
   private boolean _serverStarted = false;
   private int _port = 1995; // Default value - loaded from properties
 

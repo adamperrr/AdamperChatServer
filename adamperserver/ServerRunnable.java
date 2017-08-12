@@ -52,7 +52,7 @@ public class ServerRunnable implements Runnable {
       }
     }
 
-  private AdamperServer _mainFrame;
-  private int _port;
+  private AdamperServer _mainFrame = null;
+  private int _port = 1995;
   ServerSocket _serverSocket = null;
 }
