@@ -142,7 +142,7 @@ public class AdamperServer extends javax.swing.JFrame {
         sendToAllUsers(tempMessage.getMessage());
       }
 
-      tempMessage = new Message(MsgType.Done, "Serwer", "DoneMsg");
+      tempMessage = new Message(MsgType.Completed, "Serwer", "CompletedMsg");
       sendToAllUsers(tempMessage.getMessage());
 
     } catch (Exception e) {
@@ -160,7 +160,7 @@ public class AdamperServer extends javax.swing.JFrame {
         sendToAllUsers(tempMessage.getMessage());
       }
 
-      tempMessage = new Message(MsgType.Done, "Serwer", "DoneMsg");
+      tempMessage = new Message(MsgType.Completed, "Serwer", "CompletedMsg");
       sendToAllUsers(tempMessage.getMessage());
 
     } catch (Exception e) {
@@ -202,7 +202,7 @@ public class AdamperServer extends javax.swing.JFrame {
 
     _serverThread = new ServerRunnable(this, _port);
     Thread starter = new Thread(_serverThread);
-    starter.setName("ServerRunnable");
+    
     _serverStarted = true;
     starter.start();
 
@@ -216,7 +216,7 @@ public class AdamperServer extends javax.swing.JFrame {
     }
 
     try {
-      Message tempMessage = new Message(MsgType.Chat, "Serwer", "zostanie zatrzymany - wszyscy użytkownicy zostaną wylogowani.");
+      Message tempMessage = new Message(MsgType.Send, "Serwer", "zostanie zatrzymany - wszyscy użytkownicy zostaną wylogowani.");
       sendToAllUsers(tempMessage.getMessage());
 
       tempMessage = new Message(MsgType.Disconnect, "Serwer", "zostanie zatrzymany - wszyscy użytkownicy zostaną wylogowani.");
@@ -242,7 +242,7 @@ public class AdamperServer extends javax.swing.JFrame {
     if (!messageTextField.getText().equals("")) {
       try {
 
-        Message tempMessage = new Message(MsgType.Chat, "ADMINISTRATOR", messageTextField.getText());
+        Message tempMessage = new Message(MsgType.Send, "ADMINISTRATOR", messageTextField.getText());
 
         if (tempMessage.getTo().equals("all")) {
           sendToAllUsers(tempMessage.getMessage());

@@ -9,14 +9,13 @@ import msg.*;
 public class ComingClientRunnable implements Runnable {
 
   public ComingClientRunnable(Socket socket, PrintWriter writer, AdamperServer frame) {
-    _mainFrame = frame;
+    _socket = socket;
     _writer = writer;
-
+    _mainFrame = frame;
     try {
-      _socket = socket;
       _reader = new BufferedReader(new InputStreamReader(_socket.getInputStream()));
     } catch (Exception e) {
-      _mainFrame.appendError("Nieoczekiwany błąd.");
+      _mainFrame.appendError("ComingClientRunnable: " + e.toString());
     }
   }
 
@@ -31,8 +30,8 @@ public class ComingClientRunnable implements Runnable {
         Message outMsg = null; // Server sends messages with date and time receiving a message, NOT date of sending by client.
 
         switch (receivedMsg.getType()) {
-          case Chat:
-            chatMsgResp(receivedMsg, outMsg);
+          case Send:
+            sendMsgResp(receivedMsg, outMsg);
             break;
           case Login:
             loginMsgResp(receivedMsg, outMsg);
@@ -52,9 +51,8 @@ public class ComingClientRunnable implements Runnable {
     } catch (java.net.SocketException e) {
       // Thrown after every user disconnection
     } catch (Exception e) {
-      _mainFrame.appendError("Comming. - run: " + e.toString());
-      _mainFrame.appendError("Utracono połączenie.");
       _mainFrame.removeUserByPrintWriter(_writer);
+      _mainFrame.appendError("Comming. - run: " + e.toString());
     } finally {
       try {
         _socket.close();
@@ -66,12 +64,12 @@ public class ComingClientRunnable implements Runnable {
     }
   }
 
-  private void chatMsgResp(Message receivedMsg, Message outMsg) throws Exception {
+  private void sendMsgResp(Message receivedMsg, Message outMsg) throws Exception {
     if (receivedMsg.getTo().equals("all")) {
-      outMsg = new Message(MsgType.Chat, receivedMsg.getFrom(), receivedMsg.getContent());
+      outMsg = new Message(MsgType.Send, receivedMsg.getFrom(), receivedMsg.getContent());
       _mainFrame.sendToAllUsers(outMsg.getMessage());
     } else {
-      outMsg = new Message(MsgType.Chat, receivedMsg.getFrom(), receivedMsg.getTo(), receivedMsg.getContent());
+      outMsg = new Message(MsgType.Send, receivedMsg.getFrom(), receivedMsg.getTo(), receivedMsg.getContent());
       _mainFrame.sendToOneUser(outMsg.getTo(), outMsg.getFrom(), _writer, outMsg.getMessage());
     }
   }
@@ -89,13 +87,13 @@ public class ComingClientRunnable implements Runnable {
   }
 
   private void connectMsgResp(Message receivedMsg, Message outMsg) throws Exception {
-    outMsg = new Message(MsgType.Chat, receivedMsg.getFrom(), receivedMsg.getContent());
+    outMsg = new Message(MsgType.Send, receivedMsg.getFrom(), receivedMsg.getContent());
     _mainFrame.addUser(receivedMsg.getFrom(), _writer);
     _mainFrame.sendToAllUsers(outMsg.getMessage());
   }
 
   private void disconnectMsgResp(Message receivedMsg, Message outMsg) throws Exception {
-    outMsg = new Message(MsgType.Chat, receivedMsg.getFrom(), "rozłączył się.");
+    outMsg = new Message(MsgType.Send, receivedMsg.getFrom(), "rozłączył się.");
     _mainFrame.sendToAllUsers(outMsg.getMessage());
     _mainFrame.removeUser(receivedMsg.getFrom());
   }
