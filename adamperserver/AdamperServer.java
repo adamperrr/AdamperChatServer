@@ -232,7 +232,6 @@ public class AdamperServer extends javax.swing.JFrame {
     setButtons();
 
     appendMsg("Serwer zatrzymany.");
-    mainTextArea.setText("");
   }
 
   private void sendMsg() {
@@ -257,7 +256,6 @@ public class AdamperServer extends javax.swing.JFrame {
     }
 
     clearMsgField();
-    messageTextField.requestFocus();
   }
 
   private void displayOnlineUsers() {
@@ -318,6 +316,7 @@ public class AdamperServer extends javax.swing.JFrame {
 
   private void clearMsgField() {
     messageTextField.setText("");
+    messageTextField.requestFocus();
   }
 
   private void scroolDown() {
